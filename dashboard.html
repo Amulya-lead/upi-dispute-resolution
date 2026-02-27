@@ -597,23 +597,63 @@
         // Display user name
         const userName = localStorage.getItem('userName') || 'John Doe';
         document.getElementById('userName').textContent = userName;
+        
+        // load history and stats for this user
+        function loadHistory() {
+            const all = JSON.parse(localStorage.getItem('complaints') || '[]');
+            const mine = all.filter(c => c.user === userName);
+            const tbody = document.querySelector('#tableBody');
+            tbody.innerHTML = '';
+            mine.forEach(c => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${c.id}</strong></td>
+                    <td><strong>₹${c.amount}</strong></td>
+                    <td><span class="status-badge status-${c.status}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span></td>
+                    <td>${new Date(c.filedDate).toISOString().split('T')[0]}</td>
+                    <td>${c.ref || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            // update stats
+            document.getElementById('totalComplaints').textContent = mine.length;
+            const refunded = mine.filter(c=>c.status==='resolved' || c.status==='refunded').reduce((a,b)=>a+Number(b.amount),0);
+            document.getElementById('totalRefunded').textContent = `₹${refunded}`;
+        }
+        
+        loadHistory();
+
+        // listen for storage events to refresh across tabs
+        window.addEventListener('storage', function(e){
+            if(e.key==='complaints') loadHistory();
+        });
 
         // Handle complaint submission
         document.getElementById('complaintForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = {
+                id: 'CMP' + Date.now(),
+                user: localStorage.getItem('userName') || 'Unknown',
                 transactionId: document.getElementById('transactionId').value,
                 amount: document.getElementById('amount').value,
                 recipient: document.getElementById('recipient').value,
                 recipientUPI: document.getElementById('recipientUPI').value,
-                status: document.getElementById('status').value,
+                status: 'new',
+                issueType: document.getElementById('status').value,
                 timestamp: document.getElementById('timestamp').value,
                 description: document.getElementById('description').value,
                 filedDate: new Date().toISOString()
             };
             
-            console.log('Complaint Filed:', formData);
+            // store complaint in localStorage array
+            let complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+            complaints.push(formData);
+            localStorage.setItem('complaints', JSON.stringify(complaints));
+            
+            console.log('✅ Complaint Filed:', formData);
+            console.log('📊 Total complaints stored:', complaints.length);
+            console.log('📁 All data:', JSON.stringify(complaints));
             
             // Show success message
             const successMsg = document.getElementById('successMessage');
@@ -621,6 +661,9 @@
             
             // Reset form
             this.reset();
+            
+            // refresh history
+            loadHistory();
             
             // Hide message after 5 seconds
             setTimeout(() => {

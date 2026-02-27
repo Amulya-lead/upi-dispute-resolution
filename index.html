@@ -380,68 +380,13 @@
                 </div>
             </form>
 
-            <!-- Admin Login Form -->
-            <form id="adminLoginForm" class="form-section">
-                <div class="form-group">
-                    <label for="adminUsername">Admin Username</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user-shield input-icon"></i>
-                        <input type="text" id="adminUsername" placeholder="admin username" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminPassword">Admin Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="adminPassword" placeholder="••••••••" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="adminSecret">Admin Secret Key</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-key input-icon"></i>
-                        <input type="password" id="adminSecret" placeholder="••••••••" required>
-                    </div>
-                </div>
-
-                <div class="feature-box">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>Restricted Access:</strong> Admin panel access is limited to authorized personnel only. Unauthorized access attempts are logged and monitored.
-                </div>
-
-                <button type="submit" class="login-btn">
-                    <i class="fas fa-sign-in-alt"></i> Access Admin Panel
-                </button>
-            </form>
 
         </div>
 
     </div>
 
     <script>
-        // Tab Switching
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const formSections = document.querySelectorAll('.form-section');
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const tabName = this.getAttribute('data-tab');
-                
-                // Remove active class from all buttons and forms
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                formSections.forEach(form => form.classList.remove('active'));
-                
-                // Add active class to clicked button and corresponding form
-                this.classList.add('active');
-                if (tabName === 'user-login') {
-                    document.getElementById('userLoginForm').classList.add('active');
-                } else {
-                    document.getElementById('adminLoginForm').classList.add('active');
-                }
-            });
-        });
+        // Tab switching removed – only user login remains
 
         // User Login
         document.getElementById('userLoginForm').addEventListener('submit', function(e) {
@@ -464,33 +409,7 @@
             }
         });
 
-        // Admin Login
-        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
-            const secret = document.getElementById('adminSecret').value;
-            
-            // Sample credentials - replace with backend validation
-            if (username === 'admin' && password === 'admin@123' && secret === 'SECRET2026') {
-                showSuccess('Admin Access');
-                localStorage.setItem('userRole', 'admin');
-                localStorage.setItem('userName', 'Admin');
-                setTimeout(() => {
-                    window.location.href = 'admin-dashboard.html';
-                }, 1500);
-            } else if (username === 'manager' && password === 'manager@123' && secret === 'SECRET2026') {
-                showSuccess('Manager Access');
-                localStorage.setItem('userRole', 'manager');
-                localStorage.setItem('userName', 'Manager');
-                setTimeout(() => {
-                    window.location.href = 'admin-dashboard.html';
-                }, 1500);
-            } else {
-                showError('Invalid admin credentials or secret key');
-            }
-        });
+
 
         function showSuccess(type) {
             document.getElementById('successMessage').style.display = 'flex';
