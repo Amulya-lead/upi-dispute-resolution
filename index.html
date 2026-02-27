@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI Rapid Resolution - Login</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #1F2937;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .logo-icon {
+            font-size: 60px;
+            background: linear-gradient(120deg, #D4A5FF 0%, #FF88E6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .logo-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            background: linear-gradient(120deg, #D4A5FF 0%, #FF88E6 50%, #FFB84D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .logo-text p {
+            color: #D8BFD8;
+            font-size: 14px;
+        }
+
+        .login-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 245, 255, 0.98) 100%);
+            border-radius: 20px;
+            padding: 45px;
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3), 0 0 1px rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(212, 165, 255, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: 2px solid #E9D5FF;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #9333EA;
+            transition: 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(120deg, #8B5CF6, #D946EF);
+            color: white;
+            border-color: #8B5CF6;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #6B46C1;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px 14px 42px;
+            border-radius: 12px;
+            border: 2px solid #E9D5FF;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input:focus {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            background: #FAFAF9;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B5CF6;
+            font-size: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            padding: 0;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            color: #6B7280;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+
+        .forgot-password a {
+            color: #8B5CF6;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: #D946EF;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(120deg, #8B5CF6 0%, #D946EF 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.3s ease;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .signup-link a {
+            color: #8B5CF6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .signup-link a:hover {
+            color: #D946EF;
+        }
+
+        .success-message {
+            background: linear-gradient(120deg, #10B981, #34D399);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            background: linear-gradient(120deg, #EF4444, #F87171);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-box {
+            background: linear-gradient(135deg, #F3E7FF 0%, #FFE7F0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #8B5CF6;
+            font-size: 13px;
+            color: #6B46C1;
+        }
+
+        .feature-box i {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .logo-text h1 {
+                font-size: 28px;
+            }
+
+            .tab-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="logo-text">
+                <h1>UPI Rapid</h1>
+                <p>Instant Payment Recovery • 24/7 Support</p>
+            </div>
+        </div>
+
+        <!-- Main Login Card -->
+        <div class="login-card">
+            
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <span>Login successful! Redirecting...</span>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials. Please try again.</span>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="user-login">
+                    <i class="fas fa-user"></i> User Login
+                </button>
+            </div>
+
+            <!-- User Login Form -->
+            <form id="userLoginForm" class="form-section active">
+                <div class="form-group">
+                    <label for="userNameInput">Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="userNameInput" placeholder="John Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="userEmail" placeholder="your@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="userPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                </button>
+
+                <div class="signup-link">
+                    Don't have an account? <a href="#">Create one now</a>
+                </div>
+            </form>
+
+            <!-- Admin Login Form -->
+            <form id="adminLoginForm" class="form-section">
+                <div class="form-group">
+                    <label for="adminUsername">Admin Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user-shield input-icon"></i>
+                        <input type="text" id="adminUsername" placeholder="admin username" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Admin Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="adminPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminSecret">Admin Secret Key</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key input-icon"></i>
+                        <input type="password" id="adminSecret" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Restricted Access:</strong> Admin panel access is limited to authorized personnel only. Unauthorized access attempts are logged and monitored.
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Access Admin Panel
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Tab Switching
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const formSections = document.querySelectorAll('.form-section');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and forms
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                formSections.forEach(form => form.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding form
+                this.classList.add('active');
+                if (tabName === 'user-login') {
+                    document.getElementById('userLoginForm').classList.add('active');
+                } else {
+                    document.getElementById('adminLoginForm').classList.add('active');
+                }
+            });
+        });
+
+        // User Login
+        document.getElementById('userLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('userNameInput').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            
+            // placeholder validation - replace with real auth
+            if (email === 'user@example.com' && password === 'password123') {
+                showSuccess('User Login');
+                localStorage.setItem('userRole', 'user');
+                localStorage.setItem('userName', name);
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                showError('Invalid email or password');
+            }
+        });
+
+        // Admin Login
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const secret = document.getElementById('adminSecret').value;
+            
+            // Sample credentials - replace with backend validation
+            if (username === 'admin' && password === 'admin@123' && secret === 'SECRET2026') {
+                showSuccess('Admin Access');
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userName', 'Admin');
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 1500);
+            } else if (username === 'manager' && password === 'manager@123' && secret === 'SECRET2026') {
+                showSuccess('Manager Access');
+                localStorage.setItem('userRole', 'manager');
+                localStorage.setItem('userName', 'Manager');
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 1500);
+            } else {
+                showError('Invalid admin credentials or secret key');
+            }
+        });
+
+        function showSuccess(type) {
+            document.getElementById('successMessage').style.display = 'flex';
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMessage');
+            document.getElementById('errorText').textContent = message;
+            errorMsg.style.display = 'flex';
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 4000);
+        }
+    </script>
+
+</body>
+
+</html>
