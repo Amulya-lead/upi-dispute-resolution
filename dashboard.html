@@ -581,6 +581,53 @@
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
+        /* Processing badge with pulsing dot */
+        .badge-processing {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FCD34D;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            position: relative;
+        }
+
+        .badge-processing::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: #FCD34D;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            animation: dotPulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(0.7);
+            }
+        }
+
+        /* Processing notice strip */
+        .processing-notice {
+            display: none;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: #FCD34D;
+            align-items: center;
+            gap: 12px;
+        }
+
         .badge-resolved {
             background: rgba(16, 185, 129, 0.15);
             color: #6EE7B7;
@@ -693,11 +740,36 @@
                 Report Failed Transaction
             </div>
 
-            <div class="alert alert-success" id="successMessage">
-                <i class="fas fa-check-circle" style="font-size:18px;"></i>
-                <div>
-                    <strong>Complaint Filed!</strong>
-                    <span id="complaintIdDisplay"> Processing your refund...</span>
+            <div id="successMessage" style="display:none; flex-direction:column; gap:0; margin-bottom:22px;">
+                <!-- Complaint Received Box -->
+                <div
+                    style="background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.06)); border: 1px solid rgba(245,158,11,0.4); border-radius: 16px; padding: 22px 24px; animation: alertSlide 0.4s ease both; position: relative; overflow:hidden;">
+                    <div
+                        style="position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, #F59E0B, transparent);">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                        <div
+                            style="width:46px; height:46px; border-radius:50%; background:rgba(245,158,11,0.2); border:2px solid rgba(245,158,11,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; animation: dotPulse 1.5s infinite;">
+                            ⏳</div>
+                        <div>
+                            <div style="font-weight:800; font-size:18px; color:#FCD34D;">Complaint Received!</div>
+                            <div style="font-size:12px; color:rgba(252,211,77,0.7); margin-top:2px;">Our AI has analyzed
+                                your case — Awaiting Admin approval</div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:10px 14px;">
+                        <div
+                            style="font-size:10px; color:rgba(252,211,77,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">
+                            Tracking ID</div>
+                        <div style="font-family:monospace; font-size:12px; color:#FCD34D; font-weight:700;"
+                            id="complaintIdDisplay">—</div>
+                    </div>
+                    <div
+                        style="margin-top:12px; font-size:12px; color:rgba(252,211,77,0.8); background:rgba(245,158,11,0.08); border-radius:8px; padding:8px 12px;">
+                        <i class="fas fa-info-circle" style="margin-right:6px;"></i>
+                        Once the Admin approves, your status will update to <strong>Refund Initiated</strong>. Tap your
+                        complaint below to view the AI's full analysis.
+                    </div>
                 </div>
             </div>
 
@@ -780,6 +852,12 @@
                 <i class="fas fa-history"></i>
                 Your Complaint History
             </div>
+            <!-- Processing notice strip -->
+            <div class="processing-notice" id="processingNotice">
+                <i class="fas fa-spinner fa-spin" style="font-size:16px;"></i>
+                <span>You have <strong>complaints under review</strong>. Our Admin team is processing your case. This
+                    page auto-updates every 5 seconds.</span>
+            </div>
             <div class="table-wrap">
                 <table>
                     <thead>
@@ -816,6 +894,7 @@
 
         const userName = sessionStorage.getItem('userName') || 'User';
         const userEmail = sessionStorage.getItem('userEmail') || '';
+        let refreshInterval = null; // Auto-refresh timer for processing complaints
         document.getElementById('userName').textContent = userName;
         document.getElementById('userInitial').textContent = userName.charAt(0).toUpperCase();
 
@@ -831,6 +910,19 @@
 
                 const data = await res.json();
                 const mine = data.complaints || [];
+
+                // Check if any complaints are processing — if yes, show the notice strip and auto-refresh
+                const anyProcessing = mine.some(c => c.status === 'processing');
+                const noticeEl = document.getElementById('processingNotice');
+                if (noticeEl) noticeEl.style.display = anyProcessing ? 'flex' : 'none';
+
+                if (anyProcessing && !refreshInterval) {
+                    refreshInterval = setInterval(loadHistory, 5000); // Auto-refresh every 5 seconds
+                } else if (!anyProcessing && refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+
                 const resolved = mine.filter(c => c.status === 'resolved' || c.status === 'refunded');
                 const refundTotal = resolved.reduce((a, b) => a + Number(b.amount), 0);
                 document.getElementById('statResolved').textContent = resolved.length;
@@ -843,15 +935,31 @@
                 }
                 mine.forEach(c => {
                     const s = c.status || 'new';
-                    const badgeClass = { new: 'badge-new', pending: 'badge-pending', resolved: 'badge-resolved', rejected: 'badge-rejected', refunded: 'badge-refunded' }[s] || 'badge-new';
+                    const isResolved = s === 'resolved';
+                    const badgeClass = isResolved ? 'badge-resolved' : (s === 'processing' ? 'badge-processing' : 'badge-new');
+                    const displayStatus = isResolved ? '✅ Refund Initiated' : (s === 'processing' ? '⏳ Processing' : s.charAt(0).toUpperCase() + s.slice(1));
+
+                    // Extract short scenario label from agent_remarks
+                    let scenarioLabel = '';
+                    if (c.agent_remarks && c.agent_remarks.includes('SCENARIO:')) {
+                        scenarioLabel = c.agent_remarks.split('SCENARIO:')[1].split('|')[0].trim();
+                    }
+
                     const tr = document.createElement('tr');
+                    tr.style.cursor = 'pointer';
+                    tr.title = 'Click to view full analysis';
                     tr.innerHTML = `
-                        <td><strong style="color:#C084FC;">${c.id}</strong></td>
+                        <td>
+                            <strong style="color:#C084FC;">${c.id}</strong>
+                            ${scenarioLabel ? `<div style="font-size:10px; color:rgba(196,181,253,0.5); margin-top:3px;">${scenarioLabel}</div>` : ''}
+                        </td>
                         <td><strong>₹${Number(c.amount).toLocaleString('en-IN')}</strong></td>
-                        <td><span class="badge ${badgeClass}">${s.charAt(0).toUpperCase() + s.slice(1)}</span></td>
+                        <td><span class="badge ${badgeClass}">${displayStatus}</span></td>
                         <td>${(c.filed_date || '').split('T')[0]}</td>
-                        <td>${c.ref_number ? `<span style="color:#6EE7B7;font-weight:600;">${c.ref_number}</span>` : '<span style="color:rgba(156,163,175,0.4);">—</span>'}</td>
+                        <td>${c.ref_number ? `<span style="color:#6EE7B7;font-weight:600;font-family:monospace;font-size:11px;">${c.ref_number}</span>` : '<span style="color:rgba(156,163,175,0.4);">—</span>'}</td>
+                        <td style="color:rgba(196,181,253,0.6);"><i class="fas fa-eye" style="font-size:12px;"></i></td>
                     `;
+                    tr.addEventListener('click', () => openDetailModal(c));
                     tbody.appendChild(tr);
                 });
             } catch { console.warn('Cannot load history'); }
@@ -888,11 +996,11 @@
                 const data = await res.json();
                 if (data.success) {
                     const msg = document.getElementById('successMessage');
-                    document.getElementById('complaintIdDisplay').textContent = ` ID: ${data.complaintId}`;
+                    document.getElementById('complaintIdDisplay').textContent = data.complaintId;
                     msg.style.display = 'flex';
                     this.reset();
                     loadHistory();
-                    setTimeout(() => { msg.style.display = 'none'; }, 6000);
+                    setTimeout(() => { msg.style.display = 'none'; }, 10000);
                 } else { alert('Error: ' + data.message); }
             } catch { alert('⚠️ Cannot connect to server. Run: python app.py'); }
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> &nbsp;File Complaint & Auto-Resolve';
@@ -903,7 +1011,142 @@
             sessionStorage.clear();
             window.location.href = 'index.html';
         }
+
+        // ── Detail Modal ──
+        function openDetailModal(c) {
+            const overlay = document.getElementById('detailModal');
+            const s = c.status || 'new';
+            const isResolved = s === 'resolved';
+
+            // Parse the structured agent_remarks: "SCENARIO: X | AI FINDING: Y | RESOLUTION: Z"
+            const remarks = c.agent_remarks || '';
+            let scenario = 'Transaction Under Review';
+            let finding = remarks;
+            let resolution = '';
+
+            if (remarks.includes('SCENARIO:') && remarks.includes('AI FINDING:')) {
+                const parts = remarks.split(' | ');
+                parts.forEach(p => {
+                    if (p.startsWith('SCENARIO:')) scenario = p.replace('SCENARIO:', '').trim();
+                    if (p.startsWith('AI FINDING:')) finding = p.replace('AI FINDING:', '').trim();
+                    if (p.startsWith('RESOLUTION:')) resolution = p.replace('RESOLUTION:', '').trim();
+                });
+            }
+
+            document.getElementById('modalTitle').textContent = c.id;
+            document.getElementById('modalScenario').textContent = scenario;
+            document.getElementById('modalAmount').textContent = '₹' + Number(c.amount).toLocaleString('en-IN');
+            document.getElementById('modalTxn').textContent = c.transaction_id || '—';
+            document.getElementById('modalDate').textContent = (c.filed_date || '').split('T')[0];
+            document.getElementById('modalReasoning').textContent = finding;
+            document.getElementById('modalResolution').textContent = resolution || (isResolved ? 'Refund approved by Admin.' : 'Awaiting Admin decision.');
+            document.getElementById('modalRef').textContent = c.ref_number || 'Pending Admin Approval';
+            document.getElementById('modalStatus').innerHTML = isResolved
+                ? '<span style="color:#6EE7B7;">✅ Refund Initiated</span>'
+                : '<span style="color:#FCD34D;">⏳ Awaiting Admin</span>';
+
+            const refBox = document.getElementById('modalRefBox');
+            refBox.style.display = isResolved ? 'block' : 'none';
+
+            // Show resolution info even for processing
+            document.getElementById('modalResolutionBox').style.display = resolution ? 'block' : 'none';
+            overlay.style.display = 'flex';
+        }
+        document.getElementById('detailModal').addEventListener('click', function (e) {
+            if (e.target === this) this.style.display = 'none';
+        });
     </script>
+    <!-- ── Detail Modal ── -->
+    <div id="detailModal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:linear-gradient(135deg, #1a0a3a, #0e0626); border:1px solid rgba(196,181,253,0.2); border-radius:24px; max-width:560px; width:100%; padding:32px; position:relative; animation:fadeSlideUp 0.3s ease both; max-height:90vh; overflow-y:auto;">
+            <!-- Top glow line -->
+            <div
+                style="position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, rgba(168,85,247,0.9), rgba(236,72,153,0.6), transparent); border-radius:24px 24px 0 0;">
+            </div>
+
+            <!-- Close button -->
+            <button onclick="document.getElementById('detailModal').style.display='none'"
+                style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:50%; width:32px; height:32px; color:#C084FC; cursor:pointer; font-size:14px;">✕</button>
+
+            <!-- Header -->
+            <div style="margin-bottom:20px;">
+                <div
+                    style="font-size:11px; color:rgba(196,181,253,0.6); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">
+                    Complaint Analysis</div>
+                <div style="font-size:13px; font-family:monospace; color:#C084FC; font-weight:700;" id="modalTitle">
+                    CMP...</div>
+                <div style="font-size:18px; font-weight:800; color:#F3E8FF; margin-top:4px;" id="modalScenario">Gateway
+                    Timeout</div>
+            </div>
+
+            <!-- Info Grid -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div
+                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
+                    <div
+                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
+                        Amount</div>
+                    <div style="font-weight:800; color:#F3E8FF;" id="modalAmount">₹0</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
+                    <div
+                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
+                        Filed On</div>
+                    <div style="font-weight:600; color:#E9D5FF; font-size:13px;" id="modalDate">—</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
+                    <div
+                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
+                        Status</div>
+                    <div style="font-weight:700; font-size:13px;" id="modalStatus">—</div>
+                </div>
+            </div>
+
+            <!-- TXN ID -->
+            <div style="margin-bottom:16px;">
+                <div style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px;">
+                    Transaction ID</div>
+                <div style="font-family:monospace; font-size:13px; color:#A78BFA; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:8px; padding:8px 12px;"
+                    id="modalTxn">—</div>
+            </div>
+
+            <!-- AI Analysis -->
+            <div style="margin-bottom:16px;">
+                <div
+                    style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                    <span
+                        style="width:18px; height:18px; background:linear-gradient(135deg, #7C3AED, #EC4899); border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">🤖</span>
+                    AI Agent Finding</div>
+                <div style="font-size:13px; color:rgba(229,231,235,0.85); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; line-height:1.7;"
+                    id="modalReasoning">—</div>
+            </div>
+
+            <!-- Why Refund is Warranted -->
+            <div id="modalResolutionBox" style="display:none; margin-bottom:16px;">
+                <div style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px;">
+                    📋 Regulatory Basis for Refund</div>
+                <div style="font-size:13px; color:rgba(229,231,235,0.85); background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.2); border-radius:12px; padding:14px; line-height:1.7;"
+                    id="modalResolution">—</div>
+            </div>
+
+            <!-- Refund Box (shown only on resolved) -->
+            <div id="modalRefBox"
+                style="display:none; background:linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.06)); border:1px solid rgba(16,185,129,0.35); border-radius:14px; padding:16px;">
+                <div
+                    style="font-size:11px; color:rgba(110,231,183,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+                    ✅ Refund Reference Number</div>
+                <div style="font-family:monospace; font-size:16px; font-weight:800; color:#6EE7B7;" id="modalRef">
+                    REF-UPI-...</div>
+                <div style="font-size:12px; color:rgba(110,231,183,0.7); margin-top:8px;">💰 We'll get back to you as
+                    soon as possible as per RBI guidelines.</div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

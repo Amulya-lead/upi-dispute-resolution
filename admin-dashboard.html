@@ -1294,6 +1294,7 @@
                     <label class="filter-label">Status</label>
                     <select class="filter-select" id="filterStatus">
                         <option value="">All Statuses</option>
+                        <option value="processing">⏳ Processing (Needs Action)</option>
                         <option value="new">New</option>
                         <option value="pending">Pending</option>
                         <option value="resolved">Resolved</option>
@@ -1482,7 +1483,20 @@
             }
             list.forEach(c => {
                 const s = c.status || 'new';
-                const map = { new: 'badge-new', pending: 'badge-pending', resolved: 'badge-resolved', rejected: 'badge-rejected' };
+                // Map the new granular statuses
+                const map = {
+                    new: 'badge-new', pending: 'badge-pending', processing: 'badge-pending',
+                    resolved: 'badge-resolved', rejected: 'badge-rejected',
+                    rejected_busy: 'badge-rejected', rejected_not_debited: 'badge-rejected',
+                    rejected_settled: 'badge-rejected', rejected_invalid: 'badge-rejected'
+                };
+
+                // Format the display string for the status column
+                let displayStatus = s.charAt(0).toUpperCase() + s.slice(1);
+                if (s.startsWith('rejected_')) {
+                    displayStatus = "Rejected: " + s.replace('rejected_', '').replace('_', ' ');
+                }
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><code style="font-family:'Space Mono',monospace;font-size:11px;color:#F87171;background:rgba(239,68,68,0.1);padding:3px 7px;border-radius:6px;">${c.id}</code></td>
@@ -1493,14 +1507,22 @@
                     </td>
                     <td><strong style="font-size:14px;">₹${Number(c.amount || 0).toLocaleString('en-IN')}</strong></td>
                     <td><span style="font-size:12px;">${c.issue_type || 'N/A'}</span></td>
-                    <td><span class="badge ${map[s] || 'badge-new'}">${s.charAt(0).toUpperCase() + s.slice(1)}</span></td>
+                    <td><span class="badge ${map[s] || 'badge-new'}">${displayStatus}</span></td>
                     <td style="font-size:12px;color:var(--text-muted);">${(c.filed_date || '').split('T')[0]}</td>
                     <td>
-                        <div class="action-wrap">
-                        ${(s === 'new' || s === 'pending') ? `
-                            <button class="btn-approve" data-id="${c.id}"><i class="fas fa-check"></i> Approve</button>
-                            <button class="btn-reject"  data-id="${c.id}"><i class="fas fa-xmark"></i> Reject</button>
-                        ` : `<span class="badge ${map[s] || ''}" style="opacity:0.7;">${s.charAt(0).toUpperCase() + s.slice(1)}</span>`}
+                        <div class="action-wrap" style="display:flex; flex-direction:column; gap:8px;">
+                        ${(s === 'new' || s === 'pending' || s === 'processing') ? `
+                            <div style="background:rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.3); padding: 8px; border-radius: 6px; font-size: 11px; color:#E9D5FF; line-height: 1.4;">
+                                ${c.agent_remarks ? c.agent_remarks.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') : '<em>No AI remarks yet</em>'}
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr; gap:4px; margin-top: 4px;">
+                                <button class="btn-approve" data-id="${c.id}"><i class="fas fa-check"></i> Approve Refund</button>
+                                <button class="btn-reject" data-id="${c.id}" data-status="rejected_busy" style="font-size:10px; padding:4px;">❌ Reject: Server Busy</button>
+                                <button class="btn-reject" data-id="${c.id}" data-status="rejected_not_debited" style="font-size:10px; padding:4px;">❌ Reject: Not Debited</button>
+                                <button class="btn-reject" data-id="${c.id}" data-status="rejected_settled" style="font-size:10px; padding:4px;">❌ Reject: Settled</button>
+                                <button class="btn-reject" data-id="${c.id}" data-status="rejected_invalid" style="font-size:10px; padding:4px;">❌ Reject: Invalid UPI</button>
+                            </div>
+                        ` : `<span class="badge ${map[s] || ''}" style="opacity:0.7;">Finalized</span>`}
                         </div>
                     </td>
                 `;
@@ -1515,18 +1537,19 @@
                         body: JSON.stringify({ status: 'resolved' })
                     });
                     const data = await res.json();
-                    alert(`✅ Approved!\nRefund Ref: ${data.refNumber}`);
+                    alert(`✅ Approved!\nRefund Ref: ${data.refNumber}\n\n[MOCK EMAIL & SMS DISPATCHED. Check Backend Terminal]`);
                     loadComplaints();
                 });
             });
             document.querySelectorAll('.btn-reject').forEach(btn => {
                 btn.addEventListener('click', async function () {
                     const id = this.dataset.id;
+                    const specificStatus = this.dataset.status;
                     await fetch(`${API}/api/complaints/${id}`, {
                         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'rejected' })
+                        body: JSON.stringify({ status: specificStatus })
                     });
-                    alert('❌ Complaint Rejected.');
+                    alert('❌ Complaint Rejected.\n\n[MOCK EMAIL & SMS DISPATCHED. Check Backend Terminal]');
                     loadComplaints();
                 });
             });

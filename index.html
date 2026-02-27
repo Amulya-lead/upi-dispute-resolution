@@ -503,11 +503,46 @@
             text-decoration: none;
             font-weight: 800;
             transition: all 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
         }
 
         .register-link:hover {
             color: #F0ABFC;
             text-shadow: 0 0 14px rgba(240, 171, 252, 0.7);
+        }
+
+        /* ── Tab System ── */
+        .tab-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(196, 181, 253, 0.15);
+        }
+
+        .tab-btn-sw {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            color: rgba(196, 181, 253, 0.6);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn-sw.active {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.7), rgba(236, 72, 153, 0.5));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
         }
 
         .admin-link-wrap {
@@ -601,30 +636,25 @@
 
         <div class="glass-card">
 
-            <div class="section-title">
-                <i class="fas fa-user"></i>
-                User Login
+            <!-- Tab Switcher -->
+            <div class="tab-switcher">
+                <button class="tab-btn-sw active" id="tabLogin" onclick="switchTab('login')"><i
+                        class="fas fa-right-to-bracket" style="margin-right:6px;"></i>Login</button>
+                <button class="tab-btn-sw" id="tabRegister" onclick="switchTab('register')"><i class="fas fa-user-plus"
+                        style="margin-right:6px;"></i>Register</button>
             </div>
 
-            <div class="alert alert-success" id="successMessage">
+            <div id="alertSuccess" class="alert alert-success" style="display:none;">
                 <i class="fas fa-check-circle"></i>
-                <span>Login successful! Redirecting...</span>
+                <span id="alertSuccessText">Login successful! Redirecting...</span>
             </div>
-
-            <div class="alert alert-error" id="errorMessage">
+            <div id="alertError" class="alert alert-error" style="display:none;">
                 <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText">Invalid credentials. Please try again.</span>
+                <span id="alertErrorText">Invalid credentials. Please try again.</span>
             </div>
 
+            <!-- LOGIN FORM -->
             <form id="userLoginForm">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <div class="input-wrap">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" class="form-input" id="userNameInput" placeholder="John Doe" required>
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
                     <div class="input-wrap">
@@ -632,7 +662,6 @@
                         <input type="email" class="form-input" id="userEmail" placeholder="your@email.com" required>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">Password</label>
                     <div class="input-wrap">
@@ -640,7 +669,6 @@
                         <input type="password" class="form-input" id="userPassword" placeholder="••••••••" required>
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="remember-wrap">
                         <input type="checkbox" id="rememberMe">
@@ -648,21 +676,47 @@
                     </div>
                     <a href="#" class="forgot-link">Forgot Password?</a>
                 </div>
-
                 <button type="submit" class="submit-btn" id="loginBtn">
                     <i class="fas fa-arrow-right-to-bracket"></i> &nbsp;Login to Dashboard
                 </button>
+                <div class="register-wrap" style="margin-top:20px;">
+                    Don't have an account? <button type="button" class="register-link"
+                        onclick="switchTab('register')">Create one now →</button>
+                </div>
             </form>
 
-            <div class="divider">
-                <div class="divider-line"></div>
-                <div class="divider-text">New here?</div>
-                <div class="divider-line"></div>
-            </div>
-
-            <div class="register-wrap">
-                Don't have an account? <a href="#" class="register-link" id="registerLink">Create one now →</a>
-            </div>
+            <!-- REGISTER FORM -->
+            <form id="userRegisterForm" style="display:none;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" class="form-input" id="regName" placeholder="John Doe" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="form-input" id="regEmail" placeholder="your@email.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" class="form-input" id="regPassword" placeholder="Min. 6 characters"
+                            required minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn" id="regBtn">
+                    <i class="fas fa-user-plus"></i> &nbsp;Create Account
+                </button>
+                <div class="register-wrap" style="margin-top:20px;">
+                    Already have an account? <button type="button" class="register-link"
+                        onclick="switchTab('login')">Sign in →</button>
+                </div>
+            </form>
 
             <div class="features-strip">
                 <div class="feature-pill"><i class="fas fa-bolt"></i> Instant Resolution</div>
@@ -684,9 +738,26 @@
     <script>
         const API = 'http://localhost:5000';
 
+        function switchTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('userLoginForm').style.display = isLogin ? '' : 'none';
+            document.getElementById('userRegisterForm').style.display = isLogin ? 'none' : '';
+            document.getElementById('tabLogin').className = 'tab-btn-sw' + (isLogin ? ' active' : '');
+            document.getElementById('tabRegister').className = 'tab-btn-sw' + (!isLogin ? ' active' : '');
+            document.getElementById('alertSuccess').style.display = 'none';
+            document.getElementById('alertError').style.display = 'none';
+        }
+
+        function showAlert(type, msg) {
+            const el = document.getElementById(type === 'success' ? 'alertSuccess' : 'alertError');
+            const txt = document.getElementById(type === 'success' ? 'alertSuccessText' : 'alertErrorText');
+            txt.textContent = msg;
+            el.style.display = 'flex';
+            if (type === 'error') setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
         document.getElementById('userLoginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const name = document.getElementById('userNameInput').value.trim();
             const email = document.getElementById('userEmail').value.trim();
             const password = document.getElementById('userPassword').value;
             const btn = document.getElementById('loginBtn');
@@ -695,7 +766,7 @@
             try {
                 const res = await fetch(`${API}/api/login`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -703,45 +774,44 @@
                     sessionStorage.setItem('userName', data.name);
                     sessionStorage.setItem('userEmail', data.email);
                     sessionStorage.setItem('token', data.token);
-                    document.getElementById('successMessage').style.display = 'flex';
+                    showAlert('success', `Welcome back, ${data.name}! Redirecting...`);
                     setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
                 } else {
-                    showError(data.message || 'Invalid email or password');
+                    showAlert('error', data.message || 'Invalid email or password');
                     btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> &nbsp;Login to Dashboard';
                     btn.disabled = false;
                 }
             } catch {
-                showError('Cannot connect to server. Make sure Flask is running.');
+                showAlert('error', 'Cannot connect to server. Make sure Flask is running.');
                 btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> &nbsp;Login to Dashboard';
                 btn.disabled = false;
             }
         });
 
-        document.getElementById('registerLink').addEventListener('click', async function (e) {
+        document.getElementById('userRegisterForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const name = prompt('Full Name:'); if (!name) return;
-            const email = prompt('Email:'); if (!email) return;
-            const password = prompt('Password:'); if (!password) return;
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const btn = document.getElementById('regBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp;Creating Account...';
+            btn.disabled = true;
             try {
                 const res = await fetch(`${API}/api/register`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password })
                 });
                 const data = await res.json();
-                alert(data.message);
                 if (data.success) {
-                    document.getElementById('userEmail').value = email;
-                    document.getElementById('userNameInput').value = name;
+                    showAlert('success', 'Account created! Please login.');
+                    setTimeout(() => switchTab('login'), 1500);
+                } else {
+                    showAlert('error', data.message || 'Registration failed.');
                 }
-            } catch { alert('Server not running. Start Flask first.'); }
+            } catch { showAlert('error', 'Server not running. Start Flask first.'); }
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> &nbsp;Create Account';
+            btn.disabled = false;
         });
-
-        function showError(msg) {
-            const el = document.getElementById('errorMessage');
-            document.getElementById('errorText').textContent = msg;
-            el.style.display = 'flex';
-            setTimeout(() => { el.style.display = 'none'; }, 4500);
-        }
     </script>
 </body>
 

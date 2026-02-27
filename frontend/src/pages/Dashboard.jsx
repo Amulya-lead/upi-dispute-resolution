@@ -49,7 +49,7 @@ const Dashboard = () => {
             const st = { total: list.length, pending: 0, resolved: 0, rejected: 0 };
             list.forEach(c => {
                 if (c.status === 'resolved') st.resolved++;
-                else if (c.status === 'rejected') st.rejected++;
+                else if (c.status.startsWith('rejected')) st.rejected++;
                 else st.pending++;
             });
             setStats(st);
@@ -109,12 +109,20 @@ const Dashboard = () => {
     };
 
     const getStatusBadge = (status) => {
-        switch (status) {
-            case 'resolved': return <span className="badge badge-resolved"><BadgeCheck size={12} /> Resolved</span>;
-            case 'rejected': return <span className="badge badge-rejected"><XCircle size={12} /> Rejected</span>;
-            case 'pending': return <span className="badge badge-pending"><AlertCircle size={12} /> Pending</span>;
-            default: return <span className="badge badge-new"><ShieldAlert size={12} /> Reviewing</span>;
+        if (status === 'resolved') return <span className="badge badge-resolved"><BadgeCheck size={12} /> Resolved</span>;
+        if (status === 'pending') return <span className="badge badge-pending"><AlertCircle size={12} /> Pending</span>;
+        if (status === 'processing') return <span className="badge" style={{ color: '#FCD34D', background: 'rgba(252, 211, 77, 0.1)', borderColor: 'rgba(252, 211, 77, 0.3)' }}><AlertCircle size={12} /> Processing</span>;
+
+        if (status.startsWith('rejected')) {
+            let label = 'Rejected';
+            if (status === 'rejected_busy') label = 'Rejected: Server Busy';
+            if (status === 'rejected_not_debited') label = 'Rejected: Not Debited';
+            if (status === 'rejected_settled') label = 'Rejected: Already Settled';
+            if (status === 'rejected_invalid') label = 'Rejected: Invalid UPI ID';
+            return <span className="badge badge-rejected"><XCircle size={12} /> {label}</span>;
         }
+
+        return <span className="badge badge-new"><ShieldAlert size={12} /> Reviewing</span>;
     };
 
     return (

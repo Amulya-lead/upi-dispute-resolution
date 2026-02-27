@@ -97,7 +97,8 @@ def init_db():
                 description TEXT,
                 status TEXT DEFAULT 'new',
                 filed_date TEXT DEFAULT CURRENT_TIMESTAMP,
-                ref_number TEXT
+                ref_number TEXT,
+                agent_remarks TEXT
             )
         ''')
 
@@ -296,6 +297,53 @@ def get_user_from_token():
         
     return session
 
+# ─── External Notifications Engine (Twilio & SendGrid) ─────────────────────────
+import os
+from twilio.rest import Client
+import sendgrid
+from sendgrid.helpers.mail import Mail, Email, To, Content
+
+class ExternalNotifier:
+    """Handles external API calls for SMS and Email notifications."""
+    TWILIO_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+    TWILIO_AUTH = os.environ.get('TWILIO_AUTH_TOKEN', '')
+    TWILIO_PHONE = os.environ.get('TWILIO_PHONE_NUMBER', '')
+    SENDGRID_KEY = os.environ.get('SENDGRID_API_KEY', '')
+
+    @staticmethod
+    def send_sms(to_number, message):
+        print(f"\n📱 [MOCK SMS DISPATCHED to {to_number}]:")
+        print(f"   => {message}\n")
+        
+        # Real Twilio injection point
+        if ExternalNotifier.TWILIO_SID and ExternalNotifier.TWILIO_AUTH:
+            try:
+                client = Client(ExternalNotifier.TWILIO_SID, ExternalNotifier.TWILIO_AUTH)
+                client.messages.create(body=message, from_=ExternalNotifier.TWILIO_PHONE, to=to_number)
+                print("   (Actual Twilio SMS Sent successfully)")
+            except Exception as e:
+                print(f"   (Twilio Error: {e})")
+
+    @staticmethod
+    def send_email(to_email, user_name, subject, html_content):
+        print(f"📧 [MOCK EMAIL DISPATCHED to {to_email}]:")
+        print(f"   Subject: {subject}")
+        print(f"   Body: [HTML Content rendered]\n")
+        
+        # Real SendGrid injection point 
+        if ExternalNotifier.SENDGRID_KEY:
+            try:
+                sg = sendgrid.SendGridAPIClient(api_key=ExternalNotifier.SENDGRID_KEY)
+                from_email = Email("support@upirapidresolution.com")
+                to_email = To(to_email)
+                content = Content("text/html", html_content)
+                mail = Mail(from_email, to_email, subject, content)
+                sg.client.mail.send.post(request_body=mail.get())
+                print("   (Actual SendGrid Email Sent successfully)")
+            except Exception as e:
+                print(f"   (SendGrid Error: {e})")
+
+
 # ─── Mock Bank API ─────────────────────────────────────────────────────────────
 # This fulfills the hackathon requirement for "Mock bank API integration" and API Security
 
@@ -318,22 +366,47 @@ def mock_bank_verify():
     if txn_id.endswith('000'):
         return jsonify({'status': 'invalid', 'message': 'Transaction not found in ledger'})
     
-    # Simulate Network Timeout Issue (User debited, merchant failed to receive)
-    elif int(txn_id[-1]) % 2 == 0:
+    # All 4 scenarios represent money-debited situations that qualify for refund
+    remainder = int(txn_id[-1]) % 4
+    if remainder == 0:
         return jsonify({
             'status': 'timeout_at_merchant', 
-            'bank_status': 'settled',
+            'bank_status': 'debited',
             'merchant_status': 'failed',
-            'resolution_action': 'initiate_refund'
+            'resolution_action': 'initiate_refund',
+            'scenario': 'gateway_timeout',
+            'agent_reasoning': "Bank has confirmed that ₹ was successfully debited from your account. However, the merchant payment gateway experienced a timeout and never received the funds. The money is currently held in an escrow state.",
+            'resolution_explanation': "Since the debit occurred but merchant confirmation was never received, NPCI guidelines mandate an automatic refund. Our system has flagged this as a Gateway Timeout error."
         })
-    
-    # Simulate Successful Transfer (User filed false dispute)
+    elif remainder == 1:
+        return jsonify({
+            'status': 'bank_reversal_pending', 
+            'bank_status': 'debited',
+            'merchant_status': 'failed',
+            'resolution_action': 'initiate_refund',
+            'scenario': 'bank_reversal',
+            'agent_reasoning': "Bank records confirm that the amount was debited from your account. The transaction was flagged internally for reversal due to a network interruption between the issuer bank and payment switch.",
+            'resolution_explanation': "This is a Bank-Side Reversal Pending case. Your bank initiated a debit but the payment switch (NPCI UPI) could not complete the routing. The RBI mandates refund within 5 business days for such cases."
+        })
+    elif remainder == 2:
+        return jsonify({
+            'status': 'duplicate_debit', 
+            'bank_status': 'double_debited',
+            'merchant_status': 'single_received',
+            'resolution_action': 'initiate_refund',
+            'scenario': 'duplicate_transaction',
+            'agent_reasoning': "Our system detected that your account was debited twice for the same transaction reference. The merchant received only one successful credit, confirming the second debit was erroneous.",
+            'resolution_explanation': "This is a Duplicate Transaction error. NPCI's UPI dispute mechanism automatically qualifies duplicate debits for immediate refund. The extra amount will be returned to your source account."
+        })
     else:
         return jsonify({
-            'status': 'settled_at_merchant',
-            'bank_status': 'settled', 
-            'merchant_status': 'settled',
-            'resolution_action': 'reject_dispute'
+            'status': 'technical_failure',
+            'bank_status': 'debited',
+            'merchant_status': 'not_reached',
+            'resolution_action': 'initiate_refund',
+            'scenario': 'technical_failure',
+            'agent_reasoning': "A technical fault occurred at the UPI infrastructure layer after your bank confirmed the debit. The transaction was marked as failed at the NPCI switch despite funds leaving your account.",
+            'resolution_explanation': "Technical failure at NPCI layer post-debit is classified as a Type-2 UPI dispute. Per RBI Circular on UPI Dispute Resolution, users are entitled to a full refund within 1-3 business days."
         })
 
 # ─── Complaints Endpoint / Dispute Agent ───────────────────────────────────────
@@ -353,13 +426,13 @@ def file_complaint():
     txn_id = data.get('transactionId', '')
     comp_id = 'CMP' + datetime.now().strftime('%Y%m%d%H%M%S') + secrets.token_hex(3).upper()
 
-    # 1. AUTOMATED AGENT LOGIC
-    # Agent intercepts the filing and hits the Mock Bank API internally
-    agent_status = 'new'
-    ref_number = None
+    # 1. AI AGENT: Classify the transaction via Mock Bank API
+    # Agent diagnoses the issue and stores recommendation in agent_remarks.
+    # Admin Dashboard is the decision point - agent does NOT auto-resolve.
+    agent_status = 'processing'
+    agent_remarks = 'Awaiting bank API diagnostics...'
     
     try:
-        # Agent securely internal requests the Mock Bank
         mock_response = requests.post(
             'http://127.0.0.1:5000/api/mock/bank/verify', 
             json={'transaction_id': txn_id},
@@ -368,23 +441,26 @@ def file_complaint():
         )
         if mock_response.status_code == 200:
             bank_data = mock_response.json()
+            reasoning = bank_data.get('agent_reasoning', '')
+            explanation = bank_data.get('resolution_explanation', '')
+            scenario = bank_data.get('scenario', 'unknown').replace('_', ' ').title()
             
-            # Agent Decision Making Workflow
-            if bank_data.get('resolution_action') == 'initiate_refund':
-                agent_status = 'resolved'
-                ref_number = 'REF-AUTO-' + secrets.token_hex(4).upper()
-            elif bank_data.get('resolution_action') == 'reject_dispute':
-                agent_status = 'rejected'
-            elif bank_data.get('status') == 'invalid':
-                agent_status = 'rejected'
+            # Build full AI analysis stored for Admin to read and User to view
+            agent_remarks = (
+                f"SCENARIO: {scenario} | "
+                f"AI FINDING: {reasoning} | "
+                f"RESOLUTION: {explanation}"
+            )
+                
     except Exception as e:
+        agent_remarks = f"Bank API unreachable: {str(e)}. Complaint routed for manual review."
         print(f"Agent API Error: {e}")
 
-    # 2. Write to DB
+    # 2. Write to DB — always 'processing' until Admin approves
     db = get_db()
     db.execute('''
         INSERT INTO complaints
-        (id, user_email, user_name, transaction_id, amount, recipient, recipient_upi, issue_type, description, status, filed_date, ref_number)
+        (id, user_email, user_name, transaction_id, amount, recipient, recipient_upi, issue_type, description, status, filed_date, agent_remarks)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
     ''', (
         comp_id,
@@ -396,17 +472,23 @@ def file_complaint():
         data.get('recipientUPI', ''),
         data.get('issueType', ''),
         data.get('description', ''),
-        agent_status,
+        'processing',
         datetime.now().isoformat(),
-        ref_number
+        agent_remarks
     ))
     db.commit()
     
-    msg = 'Complaint filed and automatically resolved (Refund Initiated)!' if agent_status == 'resolved' else 'Complaint filed successfully.'
-    if agent_status == 'rejected':
-        msg = 'Complaint checked instantly. Status: Rejected (Txn successful).'
+    # 3. Send receipt notification
+    email_html = f"<h3>UPI Rapid - Complaint Received</h3><p>Hi {user['user_name']}, your dispute for Txn <b>{txn_id}</b> has been received and is being reviewed. Our AI Agent has analyzed your case and flagged it for Admin approval.</p><p>Tracking ID: <b>{comp_id}</b></p>"
+    ExternalNotifier.send_email(user['user_email'], user['user_name'], f"Complaint Received: {comp_id}", email_html)
+    ExternalNotifier.send_sms('+919876543210', f"UPI Rapid: Dispute {comp_id} received. Status: Processing. We'll update you shortly.")
 
-    return jsonify({'success': True, 'complaintId': comp_id, 'message': msg})
+    return jsonify({
+        'success': True, 
+        'complaintId': comp_id,
+        'status': 'processing',
+        'message': 'Complaint filed successfully. Our AI agent has analyzed your case. Pending Admin review.'
+    })
 
 
 @app.route('/api/complaints/mine', methods=['GET', 'OPTIONS'])
@@ -435,18 +517,24 @@ def update_complaint(complaint_id):
     if new_status == 'resolved':
         ref_number = 'REF' + secrets.token_hex(3).upper()
 
+    # Fetch the original complaint to get the user email for notifications
     db = get_db()
+    complaint = db.execute("SELECT user_email, user_name, transaction_id FROM complaints WHERE id=?", (complaint_id,)).fetchone()
+    
     if ref_number:
-        db.execute(
-            "UPDATE complaints SET status=?, ref_number=? WHERE id=?",
-            (new_status, ref_number, complaint_id)
-        )
+        db.execute("UPDATE complaints SET status=?, ref_number=? WHERE id=?", (new_status, ref_number, complaint_id))
     else:
-        db.execute(
-            "UPDATE complaints SET status=? WHERE id=?",
-            (new_status, complaint_id)
-        )
+        db.execute("UPDATE complaints SET status=? WHERE id=?", (new_status, complaint_id))
     db.commit()
+    
+    # Send resolution notifications if complaint exists
+    if complaint:
+        status_msg = f"RESOLVED. Refund Ref: {ref_number}" if new_status == 'resolved' else f"REJECTED. Reason: {new_status}"
+        
+        email_html = f"<h3>UPI Rapid - Complaint Update</h3><p>Hi {complaint['user_name']}, your dispute for Txn <b>{complaint['transaction_id']}</b> (ID: {complaint_id}) has been updated.</p><p><b>Final Status:</b> {status_msg}</p>"
+        ExternalNotifier.send_email(complaint['user_email'], complaint['user_name'], f"Complaint Update: {complaint_id}", email_html)
+        ExternalNotifier.send_sms('+919876543210', f"UPI Rapid: Your dispute {complaint_id} is finalized. Status: {status_msg}")
+
     return jsonify({'success': True, 'refNumber': ref_number})
 
 
