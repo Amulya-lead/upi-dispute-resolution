@@ -1,86 +1,600 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - UPI Surveillance</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <title>Admin Portal - UPI Rapid Resolution</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-        body { background: linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%); color:#fff; display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
-        .login-container{width:100%;max-width:400px;}
-        .logo{ text-align:center;margin-bottom:30px; }
-        .logo i{font-size:50px;background:linear-gradient(120deg,#FCA5A5 0%,#F87171 50%,#DC2626 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-        .logo h1{font-family:'Playfair Display',serif;font-size:32px;background:linear-gradient(120deg,#FCA5A5 0%,#F87171 50%,#DC2626 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-        .login-card{background:rgba(255,255,255,.95);border-radius:20px;padding:40px;box-shadow:0 20px 60px rgba(220,38,38,.3);border:1px solid rgba(220,38,38,.2);}
-        .form-group{margin-bottom:20px;}
-        label{display:block;color:#DC2626;font-weight:600;margin-bottom:8px;font-size:14px;}
-        .input-wrapper{position:relative;}
-        input{width:100%;padding:14px 16px 14px 42px;border-radius:12px;border:2px solid #FECACA;font-size:14px;outline:none;transition:.3s;}
-        .input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#DC2626;font-size:16px;}
-        input:focus{border-color:#DC2626;box-shadow:0 0 0 4px rgba(220,38,38,.1);background:#fafafa;color:#000;}
-        .login-btn{width:100%;padding:14px;background:linear-gradient(120deg,#DC2626 0%,#EF4444 100%);color:#fff;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-size:15px;transition:.3s;box-shadow:0 10px 25px rgba(220,38,38,.3);}
-        .login-btn:hover{transform:translateY(-2px);box-shadow:0 15px 40px rgba(220,38,38,.4);}
-        .error-message{background:linear-gradient(120deg,#EF4444,#F87171);color:white;padding:16px;border-radius:12px;margin-bottom:20px;display:none;align-items:center;gap:12px;}
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0c0101;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* ── Background ── */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse at 15% 50%, #3b0808 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 20%, #1c0a0a 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 85%, #2d0000 0%, transparent 50%),
+                linear-gradient(135deg, #0c0101 0%, #1a0505 50%, #0f0202 100%);
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orbFloat linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.18) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            animation-duration: 22s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
+            bottom: -80px;
+            right: -80px;
+            animation-duration: 18s;
+            animation-delay: -9s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+            top: 30%;
+            left: 65%;
+            animation-duration: 20s;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(25px, -35px) scale(1.05);
+            }
+
+            50% {
+                transform: translate(-20px, 28px) scale(0.95);
+            }
+
+            75% {
+                transform: translate(35px, 15px) scale(1.02);
+            }
+        }
+
+        /* Grid lines */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(239, 68, 68, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239, 68, 68, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 15% 25%, rgba(255, 255, 255, 0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 65%, rgba(255, 255, 255, 0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 15%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 55%, rgba(255, 255, 255, 0.2) 0%, transparent 100%),
+                radial-gradient(2px 2px at 30% 80%, rgba(252, 165, 165, 0.5) 0%, transparent 100%),
+                radial-gradient(2px 2px at 75% 40%, rgba(245, 158, 11, 0.4) 0%, transparent 100%);
+        }
+
+        /* ── Wrapper ── */
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Logo ── */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(252, 165, 165, 0.2);
+            margin-bottom: 18px;
+            animation: logoPulse 3s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(220, 38, 38, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes logoPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(220, 38, 38, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(239, 68, 68, 0.35), 0 0 100px rgba(220, 38, 38, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            }
+        }
+
+        .logo-icon-wrap i {
+            font-size: 34px;
+            color: #FCA5A5;
+        }
+
+        .logo-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FEE2E2 0%, #FCA5A5 40%, #F87171 70%, #EF4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .logo-sub {
+            color: rgba(252, 165, 165, 0.5);
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 11px;
+            color: #FCD34D;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        /* ── Card ── */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 44px 40px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(252, 165, 165, 0.4), rgba(239, 68, 68, 0.3), transparent);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FEE2E2;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.35), rgba(239, 68, 68, 0.3));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #FCA5A5;
+            border: 1px solid rgba(252, 165, 165, 0.2);
+        }
+
+        /* ── Alert ── */
+        .alert {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            font-size: 13px;
+            font-weight: 500;
+            animation: alertSlide 0.3s ease both;
+        }
+
+        @keyframes alertSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #FCA5A5;
+        }
+
+        /* ── Form ── */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(252, 165, 165, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 9px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(220, 38, 38, 0.7);
+            font-size: 15px;
+            transition: color 0.3s;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            font-size: 14px;
+            color: #F3F4F6;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: rgba(156, 163, 175, 0.4);
+        }
+
+        .form-input:focus {
+            border-color: rgba(220, 38, 38, 0.5);
+            background: rgba(220, 38, 38, 0.06);
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1), 0 0 20px rgba(220, 38, 38, 0.08);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: rgba(220, 38, 38, 0.5);
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: #FCA5A5;
+        }
+
+        /* ── Button ── */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #B91C1C 0%, #DC2626 50%, #EF4444 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+            box-shadow: 0 8px 30px rgba(185, 28, 28, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            margin-top: 8px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(185, 28, 28, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .user-link-wrap {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .user-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(252, 165, 165, 0.5);
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-link:hover {
+            color: #FCA5A5;
+            border-color: rgba(252, 165, 165, 0.2);
+            background: rgba(220, 38, 38, 0.06);
+        }
+
+        .security-notice {
+            margin-top: 22px;
+            padding: 14px 18px;
+            background: rgba(245, 158, 11, 0.07);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            border-radius: 12px;
+            font-size: 12px;
+            color: rgba(253, 230, 138, 0.7);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.5;
+        }
+
+        .security-notice i {
+            color: #FCD34D;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 30px 22px;
+            }
+
+            .logo-title {
+                font-size: 26px;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <i class="fas fa-shield-alt"></i>
-            <h1>Admin Surveillance</h1>
+    <div class="bg-canvas"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-bg"></div>
+    <div class="stars"></div>
+
+    <div class="login-wrapper">
+        <div class="logo-section">
+            <div class="logo-icon-wrap">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="logo-title">Admin Portal</div>
+            <div class="logo-sub">Restricted Access — Authorized Personnel Only</div>
+            <div class="security-badge">
+                <i class="fas fa-lock"></i>
+                3-Factor Authentication Required
+            </div>
         </div>
-        <div class="login-card">
-            <div class="error-message" id="errorMessage">
-                <i class="fas fa-exclamation-circle"></i>
+
+        <div class="glass-card">
+            <div class="section-title">
+                <i class="fas fa-user-shield"></i>
+                Secure Login
+            </div>
+
+            <div class="alert alert-error" id="errorMessage">
+                <i class="fas fa-exclamation-triangle"></i>
                 <span id="errorText">Invalid credentials.</span>
             </div>
+
             <form id="adminOnlyForm">
                 <div class="form-group">
-                    <label for="adminUsername">Username</label>
-                    <div class="input-wrapper">
+                    <label class="form-label">Username</label>
+                    <div class="input-wrap">
                         <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="adminUsername" required>
+                        <input type="text" class="form-input" id="adminUsername" placeholder="admin" required>
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="adminPassword">Password</label>
-                    <div class="input-wrapper">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrap">
                         <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="adminPassword" required>
+                        <input type="password" class="form-input" id="adminPassword" placeholder="••••••••" required>
+                        <i class="fas fa-eye toggle-password" data-target="adminPassword"></i>
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="adminSecret">Secret Key</label>
-                    <div class="input-wrapper">
+                    <label class="form-label">Secret Key</label>
+                    <div class="input-wrap">
                         <i class="fas fa-key input-icon"></i>
-                        <input type="password" id="adminSecret" required>
+                        <input type="password" class="form-input" id="adminSecret" placeholder="••••••••••" required>
+                        <i class="fas fa-eye toggle-password" data-target="adminSecret"></i>
                     </div>
                 </div>
-                <button type="submit" class="login-btn">Login</button>
+
+                <button type="submit" class="submit-btn" id="loginBtn">
+                    <i class="fas fa-fingerprint"></i> &nbsp;Authenticate & Enter
+                </button>
             </form>
+
+            <div class="security-notice">
+                <i class="fas fa-triangle-exclamation"></i>
+                All access attempts are logged. Unauthorized access is strictly prohibited and subject to legal action.
+            </div>
+        </div>
+
+        <div class="user-link-wrap">
+            <a href="index.html" class="user-link">
+                <i class="fas fa-arrow-left" style="font-size:10px;"></i>
+                Back to User Login
+            </a>
         </div>
     </div>
 
     <script>
-        document.getElementById('adminOnlyForm').addEventListener('submit',function(e){
+        const API = 'http://localhost:5000';
+
+        document.querySelectorAll('.toggle-password').forEach(el => {
+            el.addEventListener('click', () => {
+                const tgt = document.getElementById(el.getAttribute('data-target'));
+                tgt.type = tgt.type === 'password' ? 'text' : 'password';
+                el.classList.toggle('fa-eye');
+                el.classList.toggle('fa-eye-slash');
+            });
+        });
+
+        document.getElementById('adminOnlyForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            const u=document.getElementById('adminUsername').value;
-            const p=document.getElementById('adminPassword').value;
-            const s=document.getElementById('adminSecret').value;
-            if((u==='admin'&&p==='admin@123'&&s==='SECRET2026')||(u==='manager'&&p==='manager@123'&&s==='SECRET2026')){
-                localStorage.setItem('userRole',u==='admin'?'admin':'manager');
-                localStorage.setItem('userName',u.charAt(0).toUpperCase()+u.slice(1));
-                window.location.href='admin-dashboard.html';
-            }else{
-                const err=document.getElementById('errorMessage');
-                document.getElementById('errorText').textContent='Invalid credentials or key';
-                err.style.display='flex';
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const secret = document.getElementById('adminSecret').value.trim();
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp;Authenticating...';
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${API}/api/admin/login`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, secret })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sessionStorage.setItem('userRole', data.role);
+                    sessionStorage.setItem('userName', data.name);
+                    sessionStorage.setItem('token', data.token);
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    const err = document.getElementById('errorMessage');
+                    document.getElementById('errorText').textContent = data.message || 'Invalid credentials.';
+                    err.style.display = 'flex';
+                    setTimeout(() => { err.style.display = 'none'; }, 5000);
+                    btn.innerHTML = '<i class="fas fa-fingerprint"></i> &nbsp;Authenticate & Enter';
+                    btn.disabled = false;
+                }
+            } catch {
+                const err = document.getElementById('errorMessage');
+                document.getElementById('errorText').textContent = 'Cannot connect to server. Run: python app.py';
+                err.style.display = 'flex';
+                btn.innerHTML = '<i class="fas fa-fingerprint"></i> &nbsp;Authenticate & Enter';
+                btn.disabled = false;
             }
         });
     </script>
 </body>
+
 </html>
