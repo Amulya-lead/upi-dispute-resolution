@@ -1358,6 +1358,7 @@
                             <th>Amount</th>
                             <th>Issue</th>
                             <th>Status</th>
+                            <th>Fraud Risk</th>
                             <th>Filed</th>
                             <th>Actions</th>
                         </tr>
@@ -1497,7 +1498,17 @@
                     displayStatus = "Rejected: " + s.replace('rejected_', '').replace('_', ' ');
                 }
 
+                const riskScore = c.fraud_score || 0;
+                const isHighRisk = c.is_high_risk;
+                const riskBadge = isHighRisk
+                    ? `<span class="badge badge-rejected" style="background:rgba(239,68,68,0.2); color:#F87171; border:1px solid rgba(239,68,68,0.4);"><i class="fas fa-biohazard"></i> High (${riskScore}%)</span>`
+                    : riskScore > 30
+                        ? `<span class="badge badge-pending" style="background:rgba(245,158,11,0.2); color:#FBBF24; border:1px solid rgba(245,158,11,0.4);"><i class="fas fa-triangle-exclamation"></i> Medium</span>`
+                        : `<span class="badge badge-resolved" style="background:rgba(16,185,129,0.2); color:#34D399; border:1px solid rgba(16,185,129,0.4);"><i class="fas fa-shield-check"></i> Safe</span>`;
+
                 const tr = document.createElement('tr');
+                if (isHighRisk) tr.style.background = 'rgba(239, 68, 68, 0.03)';
+
                 tr.innerHTML = `
                     <td><code style="font-family:'Space Mono',monospace;font-size:11px;color:#F87171;background:rgba(239,68,68,0.1);padding:3px 7px;border-radius:6px;">${c.id}</code></td>
                     <td><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);">${c.transaction_id || '—'}</span></td>
@@ -1508,6 +1519,7 @@
                     <td><strong style="font-size:14px;">₹${Number(c.amount || 0).toLocaleString('en-IN')}</strong></td>
                     <td><span style="font-size:12px;">${c.issue_type || 'N/A'}</span></td>
                     <td><span class="badge ${map[s] || 'badge-new'}">${displayStatus}</span></td>
+                    <td>${riskBadge}</td>
                     <td style="font-size:12px;color:var(--text-muted);">${(c.filed_date || '').split('T')[0]}</td>
                     <td>
                         <div class="action-wrap" style="display:flex; flex-direction:column; gap:8px;">
@@ -1574,9 +1586,13 @@
             const status = document.getElementById('filterStatus').value;
             const searchId = document.getElementById('searchId').value.toLowerCase();
             const amtRange = document.getElementById('filterAmount').value;
+            const date = document.getElementById('filterDate').value;
             let filtered = allComplaints.slice();
+
             if (status) filtered = filtered.filter(c => c.status === status);
             if (searchId) filtered = filtered.filter(c => (c.id || '').toLowerCase().includes(searchId) || (c.transaction_id || '').toLowerCase().includes(searchId));
+            if (date) filtered = filtered.filter(c => (c.filed_date || '').startsWith(date));
+
             if (amtRange === '0-5000') filtered = filtered.filter(c => Number(c.amount) <= 5000);
             if (amtRange === '5000-10000') filtered = filtered.filter(c => Number(c.amount) > 5000 && Number(c.amount) <= 10000);
             if (amtRange === '10000+') filtered = filtered.filter(c => Number(c.amount) > 10000);
@@ -1628,8 +1644,16 @@
         function logout() { sessionStorage.clear(); window.location.href = 'admin-login.html'; }
 
         /* ── Init ── */
-        loadComplaints();
-        loadStats();
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('filterDate').value = today;
+
+        // Initial load with today's filter
+        async function initAdmin() {
+            await loadComplaints(); // Load all first
+            applyFilters();        // Then apply today's date filter
+            loadStats();
+        }
+        initAdmin();
     </script>
 </body>
 

@@ -98,7 +98,22 @@ def init_db():
                 status TEXT DEFAULT 'new',
                 filed_date TEXT DEFAULT CURRENT_TIMESTAMP,
                 ref_number TEXT,
-                agent_remarks TEXT
+                agent_remarks TEXT,
+                fraud_score INTEGER DEFAULT 0,
+                is_high_risk BOOLEAN DEFAULT 0
+            )
+        ''')
+
+        # Transactions table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_email TEXT NOT NULL,
+                recipient TEXT NOT NULL,
+                upi_id TEXT NOT NULL,
+                amount REAL NOT NULL,
+                status TEXT DEFAULT 'success',
+                transaction_date TEXT DEFAULT CURRENT_TIMESTAMP
             )
         ''')
 
@@ -120,6 +135,14 @@ def init_db():
                       ('admin', hash_password('admin@123'), 'admin', hash_password('SECRET2026')))
             c.execute("INSERT INTO admins (username, password_hash, role, secret_hash) VALUES (?,?,?,?)",
                       ('manager', hash_password('manager@123'), 'manager', hash_password('SECRET2026')))
+
+        # 5. Handle migrations for existing databases
+        c.execute("PRAGMA table_info(complaints)")
+        columns = [col[1] for col in c.fetchall()]
+        if 'fraud_score' not in columns:
+            c.execute('ALTER TABLE complaints ADD COLUMN fraud_score INTEGER DEFAULT 0')
+        if 'is_high_risk' not in columns:
+            c.execute('ALTER TABLE complaints ADD COLUMN is_high_risk BOOLEAN DEFAULT 0')
 
         conn.commit()
     print("✅ Database initialized at:", DB_PATH)
@@ -399,7 +422,7 @@ def mock_bank_verify():
             'resolution_explanation': "This is a Duplicate Transaction error. NPCI's UPI dispute mechanism automatically qualifies duplicate debits for immediate refund. The extra amount will be returned to your source account."
         })
     else:
-        return jsonify({
+        res = {
             'status': 'technical_failure',
             'bank_status': 'debited',
             'merchant_status': 'not_reached',
@@ -407,7 +430,34 @@ def mock_bank_verify():
             'scenario': 'technical_failure',
             'agent_reasoning': "A technical fault occurred at the UPI infrastructure layer after your bank confirmed the debit. The transaction was marked as failed at the NPCI switch despite funds leaving your account.",
             'resolution_explanation': "Technical failure at NPCI layer post-debit is classified as a Type-2 UPI dispute. Per RBI Circular on UPI Dispute Resolution, users are entitled to a full refund within 1-3 business days."
-        })
+        }
+
+    # 3. FRAUD DETECTION ENGINE (Mock Logic)
+    fraud_score = 0
+    is_high_risk = False
+    
+    # Check 1: Unusual Amount (Over 20k is suspicious for this mock)
+    if float(data.get('amount', 0)) > 20000:
+        fraud_score += 45
+    
+    # Check 2: Pattern Analysis (Specific keywords in description)
+    desc = data.get('description', '').lower()
+    suspicious_keywords = ['urgent', 'fast', 'immediately', 'rich', 'lotto']
+    if any(k in desc for k in suspicious_keywords):
+        fraud_score += 25
+        
+    # Check 3: Repeat ID frequency (Mocked)
+    if 'test' in txn_id.lower():
+        fraud_score += 30
+
+    if fraud_score > 60:
+        is_high_risk = True
+        res['agent_reasoning'] = "⚠️ SECURITY ALERT: " + res['agent_reasoning']
+    
+    res['fraud_score'] = fraud_score
+    res['is_high_risk'] = is_high_risk
+    
+    return jsonify(res)
 
 # ─── Complaints Endpoint / Dispute Agent ───────────────────────────────────────
 
@@ -427,15 +477,14 @@ def file_complaint():
     comp_id = 'CMP' + datetime.now().strftime('%Y%m%d%H%M%S') + secrets.token_hex(3).upper()
 
     # 1. AI AGENT: Classify the transaction via Mock Bank API
-    # Agent diagnoses the issue and stores recommendation in agent_remarks.
-    # Admin Dashboard is the decision point - agent does NOT auto-resolve.
-    agent_status = 'processing'
-    agent_remarks = 'Awaiting bank API diagnostics...'
+    # 2. Write to DB — always 'processing' until Admin approves
+    fraud_score = 0
+    is_high_risk = 0
     
     try:
         mock_response = requests.post(
             'http://127.0.0.1:5000/api/mock/bank/verify', 
-            json={'transaction_id': txn_id},
+            json={'transaction_id': txn_id, 'amount': data.get('amount', 0), 'description': data.get('description', '')},
             headers={'X-API-KEY': MOCK_BANK_API_KEY},
             timeout=5
         )
@@ -444,8 +493,9 @@ def file_complaint():
             reasoning = bank_data.get('agent_reasoning', '')
             explanation = bank_data.get('resolution_explanation', '')
             scenario = bank_data.get('scenario', 'unknown').replace('_', ' ').title()
+            fraud_score = bank_data.get('fraud_score', 0)
+            is_high_risk = 1 if bank_data.get('is_high_risk', False) else 0
             
-            # Build full AI analysis stored for Admin to read and User to view
             agent_remarks = (
                 f"SCENARIO: {scenario} | "
                 f"AI FINDING: {reasoning} | "
@@ -456,12 +506,11 @@ def file_complaint():
         agent_remarks = f"Bank API unreachable: {str(e)}. Complaint routed for manual review."
         print(f"Agent API Error: {e}")
 
-    # 2. Write to DB — always 'processing' until Admin approves
     db = get_db()
     db.execute('''
         INSERT INTO complaints
-        (id, user_email, user_name, transaction_id, amount, recipient, recipient_upi, issue_type, description, status, filed_date, agent_remarks)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+        (id, user_email, user_name, transaction_id, amount, recipient, recipient_upi, issue_type, description, status, filed_date, agent_remarks, fraud_score, is_high_risk)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     ''', (
         comp_id,
         user['user_email'],
@@ -474,7 +523,9 @@ def file_complaint():
         data.get('description', ''),
         'processing',
         datetime.now().isoformat(),
-        agent_remarks
+        agent_remarks,
+        fraud_score,
+        is_high_risk
     ))
     db.commit()
     
@@ -564,6 +615,224 @@ def get_stats():
         'totalUsers': total_users
     })
 
+
+# ─── Transaction Endpoints ───────────────────────────────────────────────────
+
+@app.route('/api/pay', methods=['POST', 'OPTIONS'])
+def record_payment():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    user = get_user_from_token()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+        
+    data = request.get_json()
+    recipient = data.get('recipient', '')
+    upi_id = data.get('upi_id', '')
+    amount = data.get('amount', 0)
+    
+    db = get_db()
+    db.execute(
+        "INSERT INTO transactions (user_email, recipient, upi_id, amount) VALUES (?,?,?,?)",
+        (user['user_email'], recipient, upi_id, amount)
+    )
+    db.commit()
+    return jsonify({'success': True, 'message': 'Transaction recorded'})
+
+@app.route('/api/transactions', methods=['GET', 'OPTIONS'])
+def get_transactions():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    user = get_user_from_token()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+        
+    db = get_db()
+    rows = db.execute(
+        "SELECT * FROM transactions WHERE user_email=? ORDER BY transaction_date DESC",
+        (user['user_email'],)
+    ).fetchall()
+    return jsonify({'success': True, 'transactions': [dict(r) for r in rows]})
+
+# ─── Chat Assistant Engine ───────────────────────────────────────────────────
+
+@app.route('/api/chat', methods=['POST', 'OPTIONS'])
+def ai_chat():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    user = get_user_from_token()
+    if not user:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+        
+    data = request.get_json()
+    query = (data.get('message') or '').lower()
+    
+    db = get_db()
+    email = user['user_email']
+    
+    # ─── Simple NLP Logic for Transaction Queries ───
+    
+    # 1. Hierarchical: 5 Years / Range / Yearly History
+    if "year" in query or "years" in query:
+        # Check for range: "2022 to 2026"
+        import re
+        years_found = re.findall(r'20\d{2}', query)
+        
+        if len(years_found) >= 2 or "5 years" in query or "five years" in query:
+            start_year = int(min(years_found)) if years_found else int(datetime.now().strftime('%Y')) - 4
+            end_year = int(max(years_found)) if years_found else int(datetime.now().strftime('%Y'))
+            
+            resp = f"Displaying your transaction summary from {start_year} to {end_year}:"
+            items = []
+            for y in range(end_year, start_year - 1, -1):
+                y_str = str(y)
+                row = db.execute("""
+                    SELECT COUNT(*) as count, SUM(amount) as total 
+                    FROM transactions WHERE user_email=? AND transaction_date LIKE ?
+                """, (email, y_str + '%')).fetchone()
+                items.append({
+                    'year': y_str,
+                    'count': row['count'] if row['count'] else 0,
+                    'total': row['total'] if row['total'] else 0,
+                    'type': 'year_summary'
+                })
+            return jsonify({'response': resp, 'transactions': items})
+
+        # Single Year - FULL 12 MONTH SCHEDULE
+        target_year = "".join(filter(str.isdigit, query)) if not years_found else years_found[0]
+        if not target_year or len(target_year) != 4:
+            target_year = datetime.now().strftime('%Y')
+            
+        import calendar
+        resp = f"Complete {target_year} Monthly Schedule:"
+        items = []
+        for m in range(12, 0, -1):
+            m_str = f"{m:02d}"
+            row = db.execute("""
+                SELECT COUNT(*) as count, SUM(amount) as total 
+                FROM transactions WHERE user_email=? AND transaction_date LIKE ?
+            """, (email, f"{target_year}-{m_str}%")).fetchone()
+            
+            items.append({
+                'month': m_str,
+                'year': target_year,
+                'count': row['count'] if row['count'] else 0,
+                'total': row['total'] if row['total'] else 0,
+                'type': 'month_summary'
+            })
+        return jsonify({'response': resp, 'transactions': items})
+
+    # 2. Daily/Standard Queries
+    elif "today" in query:
+        today = datetime.now().strftime('%Y-%m-%d')
+        rows = db.execute(
+            "SELECT * FROM transactions WHERE user_email=? AND transaction_date LIKE ? ORDER BY transaction_date DESC",
+            (email, today + '%')
+        ).fetchall()
+        txns = [dict(r) for r in rows]
+        if not txns:
+            return jsonify({'response': "You haven't made any transactions today."})
+        total = sum(t['amount'] for t in txns)
+        return jsonify({
+            'response': f"You made {len(txns)} transactions today, totaling ₹{total:,.2f}.",
+            'transactions': txns
+        })
+        
+    elif "yesterday" in query:
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        rows = db.execute(
+            "SELECT * FROM transactions WHERE user_email=? AND transaction_date LIKE ? ORDER BY transaction_date DESC",
+            (email, yesterday + '%')
+        ).fetchall()
+        txns = [dict(r) for r in rows]
+        if not txns:
+            return jsonify({'response': "I couldn't find any transactions from yesterday."})
+        total = sum(t['amount'] for t in txns)
+        return jsonify({
+            'response': f"Yesterday, you made {len(txns)} transactions totaling ₹{total:,.2f}.",
+            'transactions': txns
+        })
+
+    elif "month" in query or "this month" in query:
+        # Check if specific month/year mentioned: "month march 2024"
+        import calendar
+        month_map = {m.lower(): i for i, m in enumerate(calendar.month_name) if m}
+        
+        target_month = None
+        target_year = "".join(filter(str.isdigit, query))
+        if not target_year or len(target_year) != 4:
+            target_year = datetime.now().strftime('%Y')
+            
+        for name, val in month_map.items():
+            if name in query:
+                target_month = f"{val:02d}"
+                break
+        
+        if not target_month:
+            # Default to current month if "this month" or no month found
+            target_month = datetime.now().strftime('%m')
+            
+        rows = db.execute(
+            "SELECT * FROM transactions WHERE user_email=? AND transaction_date LIKE ? ORDER BY transaction_date DESC",
+            (email, f"{target_year}-{target_month}%")
+        ).fetchall()
+        txns = [dict(r) for r in rows]
+        if not txns:
+            return jsonify({'response': f"No transactions found for {calendar.month_name[int(target_month)]} {target_year}."})
+        
+        month_name = calendar.month_name[int(target_month)]
+        total = sum(t['amount'] for t in txns)
+        return jsonify({
+            'response': f"For {month_name} {target_year}, you made {len(txns)} transactions totaling ₹{total:,.2f}.",
+            'transactions': txns
+        })
+
+    elif "all" in query or "history" in query:
+        rows = db.execute(
+            "SELECT * FROM transactions WHERE user_email=? ORDER BY transaction_date DESC LIMIT 10",
+            (email,)
+        ).fetchall()
+        txns = [dict(r) for r in rows]
+        if not txns:
+            return jsonify({'response': "Your transaction history is currently empty. Make a payment to see it here!"})
+        return jsonify({
+            'response': f"Here are your last {len(txns)} transactions:",
+            'transactions': txns
+        })
+
+    elif "dispute" in query or "complaint" in query:
+        rows = db.execute(
+            "SELECT id, amount, status, filed_date FROM complaints WHERE user_email=? ORDER BY filed_date DESC LIMIT 5",
+            (email,)
+        ).fetchall()
+        complaints = [dict(r) for r in rows]
+        if not complaints:
+            return jsonify({'response': "You haven't filed any disputes yet. If you need help, just click the 'Dispute & History Center'!"})
+        
+        # Format for AI display
+        response_text = f"I found {len(complaints)} disputes you've filed. Here is the status of your recent cases:"
+        # Re-using the transaction display format for simplicity in UI
+        display_items = []
+        for c in complaints:
+            display_items.append({
+                'recipient': f"Dispute: {c['id']}",
+                'amount': c['amount'],
+                'transaction_date': c['filed_date'] or 'Recent',
+                'status': c['status']
+            })
+        return jsonify({
+            'response': response_text,
+            'transactions': display_items 
+        })
+
+    elif "balance" in query:
+        return jsonify({'response': "I can't access your live bank balance directly for security reasons, but I can show your transaction history! Just ask for 'recent transactions'."})
+
+    # Default friendly AI response
+    return jsonify({'response': "I'm your UPI Rapid Assistant. You can ask me things like: <br>• 'Show today's transactions'<br>• 'What did I spend yesterday?'<br>• 'Show this month's history'"})
 
 # ─── Run ───────────────────────────────────────────────────────────────────────
 

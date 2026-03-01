@@ -376,6 +376,203 @@
 
         .form-input:focus,
         .form-select:focus,
+        /* ── AI Chatbot Widget ── */
+        .chat-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .chat-button {
+            width: 65px;
+            height: 65px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--purple-1), var(--purple-3));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .chat-button:hover {
+            transform: translateY(-8px) rotate(8deg);
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.6);
+        }
+
+        .chat-window {
+            width: 380px;
+            height: 550px;
+            background: rgba(15, 5, 35, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            margin-bottom: 20px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform-origin: bottom right;
+            animation: chatOpen 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+
+        @keyframes chatOpen {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .chat-header {
+            padding: 20px 25px;
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.1), rgba(217, 70, 239, 0.05));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-header-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7C3AED, #D946EF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .msg {
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: msgFade 0.4s ease forwards;
+        }
+
+        @keyframes msgFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg-ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.06);
+            border-bottom-left-radius: 4px;
+            color: #E5E7EB;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            border-bottom-right-radius: 4px;
+            color: white;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--purple-1);
+        }
+
+        .chat-send {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: var(--purple-1);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .chat-send:hover {
+            background: var(--purple-2);
+            transform: scale(1.05);
+        }
+
+        /* ── Mini Transaction Result ── */
+        .chat-txn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chat-txn-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .form-textarea:focus {
             border-color: rgba(139, 92, 246, 0.5);
             background: rgba(139, 92, 246, 0.07);
@@ -655,6 +852,355 @@
             border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
 
+        /* ── New Lavish Elements ── */
+        .balance-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .balance-card {
+            padding: 35px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 20%, rgba(168, 85, 247, 0.15), transparent);
+            pointer-events: none;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(196, 181, 253, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .balance-amount {
+            font-size: 40px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+        }
+
+        .balance-toggle {
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            color: rgba(196, 181, 253, 0.8);
+            transition: all 0.3s;
+        }
+
+        .balance-toggle:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .balance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(168, 85, 247, 0.15);
+            color: #C084FC;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+
+        .pay-action-btn {
+            background: linear-gradient(135deg, #7C3AED, #EC4899);
+            border: none;
+            padding: 16px 28px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+            z-index: 2;
+        }
+
+        .pay-action-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(168, 85, 247, 0.5);
+        }
+
+        .pay-action-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .quick-actions-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .action-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 20px;
+        }
+
+        .action-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .action-item-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(168, 85, 247, 0.15);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #C084FC;
+            font-size: 18px;
+        }
+
+        .action-item span {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(196, 181, 253, 0.8);
+        }
+
+        /* ── Payment Modal ── */
+        .modal-base {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pay-modal-card {
+            background: rgba(15, 5, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        .pay-modal-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 10%, rgba(168, 85, 247, 0.2), transparent);
+            pointer-events: none;
+        }
+
+        .pay-steps-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: #A855F7;
+            width: 24px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #A855F7;
+        }
+
+        .pay-step-content {
+            display: none;
+            text-align: center;
+            animation: fadeSlideUp 0.4s ease;
+        }
+
+        .pay-step-content.active {
+            display: block;
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            margin: 15px 0 8px;
+        }
+
+        .step-subtitle {
+            font-size: 14px;
+            color: rgba(196, 181, 253, 0.6);
+            margin-bottom: 28px;
+        }
+
+        .pay-input-wrap {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .pay-input-wrap input {
+            background: none;
+            border: none;
+            color: #fff;
+            outline: none;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .pay-input-wrap i {
+            color: #A855F7;
+            font-size: 18px;
+        }
+
+        .pay-proceed-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 18px;
+            border: none;
+            background: #fff;
+            color: #000;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pay-proceed-btn:hover {
+            transform: scale(1.02);
+            background: #f0f0f0;
+        }
+
+        .pay-proceed-btn.confirm {
+            background: linear-gradient(135deg, #7C3AED, #EC4899);
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        .pin-grid-custom {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .pin-cell {
+            aspect-ratio: 1;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .processing-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(168, 85, 247, 0.1);
+            border-top-color: #A855F7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes fill {
+            100% {
+                box-shadow: inset 0 0 0 50px rgba(16, 185, 129, 0.1);
+            }
+        }
+
+        .checkmark-wrap {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+        }
+
+        .checkmark-svg {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            stroke-width: 3;
+            stroke: #10B981;
+            stroke-miterlimit: 10;
+            animation: fill .4s ease-in-out .4s forwards;
+        }
+
+        .checkmark-circle-svg {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke: #10B981;
+            fill: none;
+            animation: stroke .6s cubic-bezier(.65, 0, .45, 1) forwards;
+        }
+
+        .checkmark-check-svg {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke .3s cubic-bezier(.65, 0, .45, 1) .8s forwards;
+        }
+
         @media (max-width: 768px) {
             .navbar {
                 padding: 0 20px;
@@ -674,6 +1220,10 @@
 
             .glass-card {
                 padding: 28px 20px;
+            }
+
+            .balance-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -705,8 +1255,37 @@
         <!-- Header -->
         <div class="page-header">
             <div class="page-badge"><i class="fas fa-bolt"></i> Rapid Resolution System</div>
-            <h1 class="page-title">File Your Complaint</h1>
-            <p class="page-sub">Report failed UPI transactions and get resolution in seconds</p>
+            <h1 class="page-title">Welcome Back, <span id="userDisplayName">User</span></h1>
+            <p class="page-sub">Effortless banking at your fingertips</p>
+        </div>
+
+        <!-- Lavish Balance & Actions -->
+        <div class="balance-grid">
+            <div class="balance-card">
+                <div class="balance-container">
+                    <div class="balance-label"><i class="fas fa-wallet"></i> Linked Bank Balance</div>
+                    <div class="balance-amount">
+                        <span id="balanceText">₹25,450.75</span>
+                        <button class="balance-toggle" onclick="toggleBalance()">Hide</button>
+                    </div>
+                    <div class="balance-badge"><i class="fas fa-star"></i> Premium Account Dashboard</div>
+                </div>
+                <button class="pay-action-btn" onclick="openPaymentModal()">
+                    <div class="pay-action-icon"><i class="fas fa-paper-plane"></i></div>
+                    <span>Send Money</span>
+                </button>
+            </div>
+
+            <div class="quick-actions-box">
+                <div class="action-item" onclick="toggleDispute('history')">
+                    <div class="action-item-icon"><i class="fas fa-file-invoice"></i></div>
+                    <span>Complaint History</span>
+                </div>
+                <div class="action-item" onclick="toggleDispute('transactions')">
+                    <div class="action-item-icon"><i class="fas fa-receipt"></i></div>
+                    <span>Transaction History</span>
+                </div>
+            </div>
         </div>
 
         <!-- Stats -->
@@ -733,149 +1312,174 @@
             </div>
         </div>
 
-        <!-- Complaint Form -->
-        <div class="glass-card">
+        <!-- Dispute & History Section -->
+        <div class="glass-card" id="disputeSection" style="display:none; animation: fadeSlideUp 0.5s ease;">
             <div class="card-title">
-                <i class="fas fa-exclamation-triangle"></i>
-                Report Failed Transaction
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <div><i class="fas fa-shield-halved"></i> Dispute & History Center</div>
+                    <button onclick="toggleDispute()"
+                        style="background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer;"><i
+                            class="fas fa-times"></i></button>
+                </div>
             </div>
 
-            <div id="successMessage" style="display:none; flex-direction:column; gap:0; margin-bottom:22px;">
-                <!-- Complaint Received Box -->
-                <div
-                    style="background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.06)); border: 1px solid rgba(245,158,11,0.4); border-radius: 16px; padding: 22px 24px; animation: alertSlide 0.4s ease both; position: relative; overflow:hidden;">
+            <!-- Tab Switcher -->
+            <div
+                style="display:flex; gap:10px; margin-bottom:25px; background:rgba(255,255,255,0.03); padding:6px; border-radius:14px; border:1px solid rgba(255,255,255,0.06);">
+                <button id="tabFormBtn" onclick="showDisputeTab('form')"
+                    style="flex:1; padding:10px; border-radius:10px; border:none; background:rgba(168,85,247,0.2); color:#C084FC; font-weight:700; cursor:pointer; transition:all 0.3s;">
+                    <i class="fas fa-edit"></i> File Dispute
+                </button>
+                <button id="tabHistoryBtn" onclick="showDisputeTab('history')"
+                    style="flex:1; padding:10px; border-radius:10px; border:none; background:transparent; color:rgba(255,255,255,0.5); font-weight:600; cursor:pointer; transition:all 0.3s;">
+                    <i class="fas fa-file-invoice"></i> Complaints
+                </button>
+                <button id="tabTransactionsBtn" onclick="showDisputeTab('transactions')"
+                    style="flex:1; padding:10px; border-radius:10px; border:none; background:transparent; color:rgba(255,255,255,0.5); font-weight:600; cursor:pointer; transition:all 0.3s;">
+                    <i class="fas fa-receipt"></i> Transactions
+                </button>
+            </div>
+
+            <div id="disputeFormTab">
+                <div id="successMessage" style="display:none; flex-direction:column; gap:0; margin-bottom:22px;">
+                    <!-- Complaint Received Box -->
                     <div
-                        style="position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, #F59E0B, transparent);">
-                    </div>
-                    <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                        style="background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.06)); border: 1px solid rgba(245,158,11,0.4); border-radius: 16px; padding: 22px 24px; animation: alertSlide 0.4s ease both; position: relative; overflow:hidden;">
                         <div
-                            style="width:46px; height:46px; border-radius:50%; background:rgba(245,158,11,0.2); border:2px solid rgba(245,158,11,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; animation: dotPulse 1.5s infinite;">
-                            ⏳</div>
-                        <div>
-                            <div style="font-weight:800; font-size:18px; color:#FCD34D;">Complaint Received!</div>
-                            <div style="font-size:12px; color:rgba(252,211,77,0.7); margin-top:2px;">Our AI has analyzed
-                                your case — Awaiting Admin approval</div>
+                            style="position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, transparent, #F59E0B, transparent);">
+                        </div>
+                        <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                            <div
+                                style="width:46px; height:46px; border-radius:50%; background:rgba(245,158,11,0.2); border:2px solid rgba(245,158,11,0.5); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; animation: dotPulse 1.5s infinite;">
+                                ⏳</div>
+                            <div>
+                                <div style="font-weight:800; font-size:18px; color:#FCD34D;">Complaint Received!</div>
+                                <div style="font-size:12px; color:rgba(252,211,77,0.7); margin-top:2px;">Our AI has
+                                    analyzed your case — Awaiting Admin approval</div>
+                            </div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:10px 14px;">
+                            <div
+                                style="font-size:10px; color:rgba(252,211,77,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">
+                                Tracking ID</div>
+                            <div style="font-family:monospace; font-size:12px; color:#FCD34D; font-weight:700;"
+                                id="complaintIdDisplay">—</div>
                         </div>
                     </div>
-                    <div style="background:rgba(0,0,0,0.2); border-radius:10px; padding:10px 14px;">
-                        <div
-                            style="font-size:10px; color:rgba(252,211,77,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">
-                            Tracking ID</div>
-                        <div style="font-family:monospace; font-size:12px; color:#FCD34D; font-weight:700;"
-                            id="complaintIdDisplay">—</div>
+                </div>
+
+                <form id="complaintForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-hashtag"
+                                    style="margin-right:5px;"></i>Transaction ID</label>
+                            <input type="text" class="form-input" id="transactionId" placeholder="TXN20260227..."
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-rupee-sign"
+                                    style="margin-right:5px;"></i>Amount</label>
+                            <input type="number" class="form-input" id="amount" placeholder="5000" required>
+                        </div>
                     </div>
-                    <div
-                        style="margin-top:12px; font-size:12px; color:rgba(252,211,77,0.8); background:rgba(245,158,11,0.08); border-radius:8px; padding:8px 12px;">
-                        <i class="fas fa-info-circle" style="margin-right:6px;"></i>
-                        Once the Admin approves, your status will update to <strong>Refund Initiated</strong>. Tap your
-                        complaint below to view the AI's full analysis.
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-user" style="margin-right:5px;"></i>Recipient
+                                Name</label>
+                            <input type="text" class="form-input" id="recipient" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-at" style="margin-right:5px;"></i>Recipient UPI
+                                ID</label>
+                            <input type="text" class="form-input" id="recipientUPI" placeholder="john@upi" required>
+                        </div>
                     </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-circle-exclamation"
+                                    style="margin-right:5px;"></i>Issue Type</label>
+                            <select class="form-select" id="status" required>
+                                <option value="">Select Issue Type</option>
+                                <option value="pending">Pending — Deducted but Not Transferred</option>
+                                <option value="timeout">Timeout Error</option>
+                                <option value="failed">Failed — Money Deducted</option>
+                                <option value="duplicate">Duplicate Transaction</option>
+                                <option value="other">Other Issue</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-calendar"
+                                    style="margin-right:5px;"></i>Transaction Time</label>
+                            <input type="datetime-local" class="form-input" id="timestamp" required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-align-left"
+                                    style="margin-right:5px;"></i>Detailed Description</label>
+                            <textarea class="form-textarea" id="description" placeholder="Describe what happened..."
+                                required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> &nbsp;File Complaint & Auto-Resolve
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div id="disputeHistoryTab" style="display:none;">
+                <!-- Processing notice strip -->
+                <div class="processing-notice" id="processingNotice" style="margin-bottom:20px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:16px;"></i>
+                    <span>You have <strong>complaints under review</strong>. Our Admin team is processing your
+                        case.</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Complaint ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Filed Date</th>
+                                <th>Refund Ref</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;padding:40px;color:rgba(156,163,175,0.5);">No
+                                    complaints yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <form id="complaintForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-hashtag" style="margin-right:5px;"></i>Transaction
-                            ID</label>
-                        <input type="text" class="form-input" id="transactionId" placeholder="TXN20260227..." required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-rupee-sign" style="margin-right:5px;"></i>Transaction
-                            Amount</label>
-                        <input type="number" class="form-input" id="amount" placeholder="5000" required>
-                    </div>
+            <div id="disputeTransactionsTab" style="display:none;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Recipient</th>
+                                <th>UPI ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;padding:40px;color:rgba(156,163,175,0.5);">No
+                                    transactions yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-user" style="margin-right:5px;"></i>Recipient
-                            Name</label>
-                        <input type="text" class="form-input" id="recipient" placeholder="John Doe" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-at" style="margin-right:5px;"></i>Recipient UPI
-                            ID</label>
-                        <input type="text" class="form-input" id="recipientUPI" placeholder="john@upi" required>
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-circle-exclamation"
-                                style="margin-right:5px;"></i>Issue Type</label>
-                        <select class="form-select" id="status" required>
-                            <option value="">Select Issue Type</option>
-                            <option value="pending">Pending — Deducted but Not Transferred</option>
-                            <option value="timeout">Timeout Error</option>
-                            <option value="failed">Failed — Money Deducted</option>
-                            <option value="duplicate">Duplicate Transaction</option>
-                            <option value="other">Other Issue</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-calendar" style="margin-right:5px;"></i>Transaction
-                            Time</label>
-                        <input type="datetime-local" class="form-input" id="timestamp" required>
-                    </div>
-                </div>
-
-                <div class="form-grid full">
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-align-left" style="margin-right:5px;"></i>Detailed
-                            Description</label>
-                        <textarea class="form-textarea" id="description" placeholder="Describe what happened..."
-                            required></textarea>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <i class="fas fa-bolt" style="color:#A78BFA;margin-right:8px;"></i>
-                    <strong>AI-Powered Resolution:</strong> Our system resolves 85% of UPI disputes automatically in
-                    under 60 seconds — no waiting 2-3 days for manual review.
-                </div>
-
-                <div class="btn-group">
-                    <button type="submit" class="btn-primary" id="submitBtn">
-                        <i class="fas fa-paper-plane"></i> &nbsp;File Complaint & Auto-Resolve
-                    </button>
-                    <button type="reset" class="btn-secondary">
-                        <i class="fas fa-rotate"></i> Clear
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- History -->
-        <div class="glass-card">
-            <div class="card-title">
-                <i class="fas fa-history"></i>
-                Your Complaint History
-            </div>
-            <!-- Processing notice strip -->
-            <div class="processing-notice" id="processingNotice">
-                <i class="fas fa-spinner fa-spin" style="font-size:16px;"></i>
-                <span>You have <strong>complaints under review</strong>. Our Admin team is processing your case. This
-                    page auto-updates every 5 seconds.</span>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Complaint ID</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Filed Date</th>
-                            <th>Refund Ref</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyBody">
-                        <tr>
-                            <td colspan="5" style="text-align:center;padding:40px;color:rgba(156,163,175,0.5);">No
-                                complaints yet</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </div>
 
@@ -886,6 +1490,274 @@
         &nbsp;·&nbsp; © 2026 UPI Rapid Resolution
     </div>
 
+    <!-- ── Payment Modal ── -->
+    <div class="modal-base" id="payModal">
+        <div class="pay-modal-card">
+            <button onclick="closePaymentModal()"
+                style="position:absolute; top:20px; right:20px; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:20px;">✕</button>
+
+            <div class="pay-steps-indicator">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+            </div>
+
+            <!-- Step 1: Recipient -->
+            <div class="pay-step-content active" id="payStep1">
+                <div class="pay-step-icon" style="font-size:40px; color:#A855F7;"><i
+                        class="fas fa-mobile-screen-button"></i></div>
+                <h2 class="step-title">Send Money</h2>
+                <p class="step-subtitle">Enter Recipient UPI ID</p>
+                <div class="pay-input-wrap">
+                    <i class="fas fa-at"></i>
+                    <input type="text" id="payUpiId" placeholder="username@bank">
+                </div>
+                <button class="pay-proceed-btn" onclick="nextPayStep(2)">Proceed <i
+                        class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Step 2: Amount -->
+            <div class="pay-step-content" id="payStep2">
+                <div class="pay-step-icon" style="font-size:40px; color:#EC4899;"><i
+                        class="fas fa-indian-rupee-sign"></i></div>
+                <h2 class="step-title">Enter Amount</h2>
+                <p class="step-subtitle">Paying to <strong id="payRecipientDisplay">...</strong></p>
+                <div class="pay-input-wrap" style="padding: 10px 18px;">
+                    <input type="number" id="payAmount" placeholder="0.00" style="font-size:32px; text-align:center;">
+                </div>
+                <button class="pay-proceed-btn" onclick="nextPayStep(3)">Review Payment <i
+                        class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Step 3: PIN -->
+            <div class="pay-step-content" id="payStep3">
+                <div class="pay-step-icon" style="font-size:40px; color:#FCD34D;"><i class="fas fa-key"></i></div>
+                <h2 class="step-title">UPI PIN</h2>
+                <p class="step-subtitle">Finalize Payment of <strong id="payAmountDisplay">₹0</strong></p>
+                <div style="position:relative; margin-bottom:28px;">
+                    <input type="password" id="hiddenPinInput" maxlength="6"
+                        style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; z-index:10;"
+                        oninput="updatePinCells(this.value)" autofocus>
+                    <div class="pin-grid-custom" id="pinGrid">
+                        <div class="pin-cell"></div>
+                        <div class="pin-cell"></div>
+                        <div class="pin-cell"></div>
+                        <div class="pin-cell"></div>
+                        <div class="pin-cell"></div>
+                        <div class="pin-cell"></div>
+                    </div>
+                </div>
+                <button class="pay-proceed-btn confirm" onclick="startProcessing()">Pay Securely <i
+                        class="fas fa-shield-alt"></i></button>
+                <div
+                    style="margin-top:20px; padding:12px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+                    <div
+                        style="font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:5px; display:flex; align-items:center; gap:5px;">
+                        <i class="fas fa-shield-check" style="color:#10B981;"></i> NPCI Secure Monitoring Active
+                    </div>
+                    <div style="font-size:9px; color:rgba(255,255,255,0.25); line-height:1.3;">
+                        This transaction is protected by real-time fraud monitoring. Never share your PIN with anyone,
+                        including bank officials.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Processing -->
+            <div class="pay-step-content" id="payStep4">
+                <div style="position:relative;">
+                    <div class="processing-spinner"></div>
+                    <div
+                        style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#A855F7;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                </div>
+                <h2 class="step-title" id="procTitle">Securing Payment...</h2>
+                <p class="step-subtitle" id="procSub">Contacting Bank Servers via NPCI</p>
+                <div id="fraudScan"
+                    style="display:none; margin-top:15px; background:rgba(168,85,247,0.1); border-radius:10px; padding:10px; border:1px solid rgba(168,85,247,0.2); animation: pulse Glow 2s infinite;">
+                    <div
+                        style="font-size:10px; color:#A78BFA; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
+                        <i class="fas fa-shield-virus"></i> Fraud Shield Active
+                    </div>
+                    <div style="font-size:11px; color:#DDD;" id="scanStatus">Scanning transaction for suspicious
+                        patterns...</div>
+                </div>
+            </div>
+
+            <!-- Step 5: Success -->
+            <div class="pay-step-content" id="payStep5">
+                <div class="checkmark-wrap">
+                    <svg class="checkmark-svg" viewBox="0 0 52 52">
+                        <circle class="checkmark-circle-svg" cx="26" cy="26" r="25" />
+                        <path class="checkmark-check-svg" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                    </svg>
+                </div>
+                <h2 class="step-title">Successfully Sent!</h2>
+                <div style="font-size:36px; font-weight:800; color:#10B981; margin: 10px 0;" id="finalAmountText">₹0
+                </div>
+                <p class="step-subtitle">Money transferred to <strong id="finalRecipientDisplay">...</strong></p>
+                <button class="pay-proceed-btn"
+                    style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10B981;"
+                    onclick="closePaymentModal()">Done</button>
+            </div>
+
+            <!-- Step 6: Error Denied (Multiples of 3) -->
+            <div class="pay-step-content" id="payStep6">
+                <div class="pay-step-icon"
+                    style="font-size:48px; color:#EF4444; background:rgba(239,68,68,0.1); width:80px; height:80px; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; border:2px solid rgba(239,68,68,0.3);">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <h2 class="step-title" style="color:#EF4444;">Payment Denied</h2>
+                <p class="step-subtitle" style="margin-bottom:20px;">Requested transaction has been blocked by your
+                    bank.</p>
+                <div
+                    style="background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2); border-radius:12px; padding:15px; font-size:12px; color:rgba(248,113,113,0.8); line-height:1.6; text-align:left;">
+                    <i class="fas fa-circle-info" style="margin-right:8px;"></i> <strong>Reason:</strong> Error Denied.
+                    Security violation detected in transaction pattern.
+                </div>
+                <button class="pay-proceed-btn"
+                    style="margin-top:25px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#EF4444;"
+                    onclick="closePaymentModal()">Close</button>
+            </div>
+
+            <!-- Step 7: Server Error (Multiples of 2) -->
+            <div class="pay-step-content" id="payStep7">
+                <div class="pay-step-icon"
+                    style="font-size:48px; color:#F59E0B; background:rgba(245,158,11,0.1); width:80px; height:80px; border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; border:2px solid rgba(245,158,11,0.3);">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <h2 class="step-title" style="color:#F59E0B;">Server Error</h2>
+                <p class="step-subtitle" style="margin-bottom:20px;">Connection timed out while processing.</p>
+                <div
+                    style="background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.2); border-radius:12px; padding:15px; font-size:12px; color:rgba(251,191,36,0.8); line-height:1.6; text-align:left;">
+                    <i class="fas fa-server" style="margin-right:8px;"></i> <strong>Diagnostic:</strong> Error in the
+                    server. NPCI gateway responding with HTTP 500.
+                </div>
+                <button class="pay-proceed-btn"
+                    style="margin-top:25px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:#F59E0B;"
+                    onclick="closePaymentModal()">Retry Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Detail Modal ── -->
+    <div id="detailModal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:linear-gradient(135deg, #1a0a3a, #0e0626); border:1px solid rgba(196,181,253,0.2); border-radius:24px; max-width:560px; width:100%; padding:32px; position:relative; animation:fadeSlideUp 0.3s ease both; max-height:90vh; overflow-y:auto;">
+            <!-- Top glow line -->
+            <div
+                style="position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, rgba(168,85,247,0.9), rgba(236,72,153,0.6), transparent); border-radius:24px 24px 0 0;">
+            </div>
+
+            <!-- Close button -->
+            <button onclick="document.getElementById('detailModal').style.display='none'"
+                style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:50%; width:32px; height:32px; color:#C084FC; cursor:pointer; font-size:14px;">✕</button>
+
+            <!-- Header -->
+            <div style="margin-bottom:20px;">
+                <div
+                    style="font-size:11px; color:rgba(196,181,253,0.6); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">
+                    Complaint Analysis</div>
+                <div style="font-size:13px; font-family:monospace; color:#C084FC; font-weight:700;" id="modalTitle">
+                    CMP...</div>
+                <div style="font-size:18px; font-weight:800; color:#F3E8FF; margin-top:4px;" id="modalScenario">Gateway
+                    Timeout</div>
+            </div>
+
+            <!-- Info Grid -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div
+                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
+                    <div
+                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
+                        Amount</div>
+                    <div style="font-weight:800; color:#F3E8FF;" id="modalAmount">₹0</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
+                    <div
+                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
+                        Filed On</div>
+                    <div style="font-weight:600; color:#E9D5FF; font-size:13px;" id="modalDate">—</div>
+                </div>
+                <div
+                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
+                    <div
+                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
+                        Status</div>
+                    <div style="font-weight:700; font-size:13px;" id="modalStatus">—</div>
+                </div>
+            </div>
+
+            <!-- TXN ID -->
+            <div style="margin-bottom:16px;">
+                <div style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px;">
+                    Transaction ID</div>
+                <div style="font-family:monospace; font-size:13px; color:#A78BFA; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:8px; padding:8px 12px;"
+                    id="modalTxn">—</div>
+            </div>
+
+            <!-- AI Analysis -->
+            <div style="margin-bottom:16px;">
+                <div
+                    style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                    <span
+                        style="width:18px; height:18px; background:linear-gradient(135deg, #7C3AED, #EC4899); border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">🤖</span>
+                    AI Agent Finding
+                </div>
+                <div style="font-size:13px; color:rgba(229,231,235,0.85); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; line-height:1.7;"
+                    id="modalReasoning">—</div>
+            </div>
+
+            <!-- Why Refund is Warranted -->
+            <div id="modalResolutionBox" style="display:none; margin-bottom:16px;">
+                <div style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px;">
+                    📋 Regulatory Basis for Refund</div>
+                <div style="font-size:13px; color:rgba(229,231,235,0.85); background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.2); border-radius:12px; padding:14px; line-height:1.7;"
+                    id="modalResolution">—</div>
+            </div>
+
+            <!-- Refund Box (shown only on resolved) -->
+            <div id="modalRefBox"
+                style="display:none; background:linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.06)); border:1px solid rgba(16,185,129,0.35); border-radius:14px; padding:16px;">
+                <div
+                    style="font-size:11px; color:rgba(110,231,183,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+                    ✅ Refund Reference Number</div>
+                <div style="font-family:monospace; font-size:16px; font-weight:800; color:#6EE7B7;" id="modalRef">
+                    REF-UPI-...</div>
+                <div style="font-size:12px; color:rgba(110,231,183,0.7); margin-top:8px;">💰 We'll get back to you as
+                    soon as possible as per RBI guidelines.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── AI Chatbot Widget ── -->
+    <div class="chat-widget">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-header-icon"><i class="fas fa-robot"></i></div>
+                <div>
+                    <div style="font-weight:700; font-size:15px; color:white;">AI Assistant</div>
+                    <div style="font-size:11px; color:#10B981; display:flex; align-items:center; gap:5px;">
+                        <span style="width:6px; height:6px; background:#10B981; border-radius:50%;"></span> Online
+                    </div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask about today's transactions..."
+                    onkeypress="handleChatKey(event)">
+                <button class="chat-send" onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div class="chat-button" onclick="toggleChat()">
+            <i class="fas fa-comment-dots"></i>
+        </div>
+    </div>
+
     <script>
         const API = 'http://localhost:5000';
 
@@ -894,9 +1766,180 @@
 
         const userName = sessionStorage.getItem('userName') || 'User';
         const userEmail = sessionStorage.getItem('userEmail') || '';
-        let refreshInterval = null; // Auto-refresh timer for processing complaints
+        let refreshInterval = null;
+        let currentBalance = 25450.75;
+        let isBalanceVisible = true;
+
         document.getElementById('userName').textContent = userName;
+        document.getElementById('userDisplayName').textContent = userName;
         document.getElementById('userInitial').textContent = userName.charAt(0).toUpperCase();
+
+        function toggleBalance() {
+            isBalanceVisible = !isBalanceVisible;
+            const text = document.getElementById('balanceText');
+            const btn = document.querySelector('.balance-toggle');
+            text.textContent = isBalanceVisible ? '₹' + currentBalance.toLocaleString('en-IN') : '••••••••';
+            btn.textContent = isBalanceVisible ? 'Hide' : 'Show';
+        }
+
+        function toggleDispute(targetTab = 'form') {
+            const dispute = document.getElementById('disputeSection');
+            const isShowing = dispute.style.display !== 'none';
+            dispute.style.display = 'block';
+            dispute.scrollIntoView({ behavior: 'smooth' });
+            showDisputeTab(targetTab);
+        }
+
+        function showDisputeTab(tab) {
+            const tabs = ['form', 'history', 'transactions'];
+            tabs.forEach(t => {
+                const el = document.getElementById('dispute' + t.charAt(0).toUpperCase() + t.slice(1) + 'Tab');
+                if (el) el.style.display = (t === tab) ? 'block' : 'none';
+
+                const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1) + 'Btn');
+                if (btn) {
+                    btn.style.background = (t === tab) ? 'rgba(168,85,247,0.2)' : 'transparent';
+                    btn.style.color = (t === tab) ? '#C084FC' : 'rgba(255,255,255,0.5)';
+                }
+            });
+
+            if (tab === 'history') loadHistory();
+            if (tab === 'transactions') loadTransactions();
+        }
+
+        // ── Payment Modal Logic ──
+        function openPaymentModal() {
+            document.getElementById('payModal').style.display = 'flex';
+            resetPayModal();
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payModal').style.display = 'none';
+        }
+
+        function resetPayModal() {
+            for (let i = 1; i <= 7; i++) {
+                const step = document.getElementById('payStep' + i);
+                if (step) step.classList.remove('active');
+            }
+            document.getElementById('payStep1').classList.add('active');
+            updateDots(1);
+        }
+
+        function updateDots(step) {
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('dot' + i).className = 'step-dot' + (i <= step ? ' active' : '');
+            }
+        }
+
+        function nextPayStep(step) {
+            if (step === 2) {
+                const id = document.getElementById('payUpiId').value;
+                if (!id) return alert('Enter UPI ID');
+                document.getElementById('payRecipientDisplay').textContent = id;
+            }
+            if (step === 3) {
+                const amt = document.getElementById('payAmount').value;
+                if (!amt || amt <= 0) return alert('Enter valid amount');
+                document.getElementById('payAmountDisplay').textContent = '₹' + Number(amt).toLocaleString('en-IN');
+                document.getElementById('hiddenPinInput').value = '';
+                updatePinCells('');
+                setTimeout(() => document.getElementById('hiddenPinInput').focus(), 100);
+            }
+
+            for (let i = 1; i <= 3; i++) document.getElementById('payStep' + i).classList.remove('active');
+            document.getElementById('payStep' + step).classList.add('active');
+            updateDots(step);
+        }
+
+        function updatePinCells(val) {
+            const cells = document.querySelectorAll('#pinGrid .pin-cell');
+            cells.forEach((cell, idx) => {
+                if (idx < val.length) {
+                    cell.style.borderColor = '#A855F7';
+                    cell.style.background = 'rgba(168, 85, 247, 0.2)';
+                    cell.innerHTML = '<div style="width:10px; height:10px; background:#fff; border-radius:50%;"></div>';
+                    cell.style.display = 'flex';
+                    cell.style.alignItems = 'center';
+                    cell.style.justifyContent = 'center';
+                } else {
+                    cell.style.borderColor = 'rgba(255,255,255,0.1)';
+                    cell.style.background = 'rgba(255,255,255,0.03)';
+                    cell.innerHTML = '';
+                }
+            });
+        }
+
+        function startProcessing() {
+            document.getElementById('payStep3').classList.remove('active');
+            document.getElementById('payStep4').classList.add('active');
+
+            const procTitle = document.getElementById('procTitle');
+            const procSub = document.getElementById('procSub');
+            const fraudScan = document.getElementById('fraudScan');
+            const scanStatus = document.getElementById('scanStatus');
+
+            // Phase 1: Security Scan
+            setTimeout(() => {
+                if (fraudScan) fraudScan.style.display = 'block';
+                if (procTitle) procTitle.textContent = "Security Verification...";
+                if (scanStatus) scanStatus.textContent = "Analyzing transaction risk level...";
+            }, 800);
+
+            // Phase 2: Pattern Check
+            setTimeout(() => {
+                if (scanStatus) scanStatus.innerHTML = '<i class="fas fa-check-circle" style="color:#10B981;"></i> No fraudulent patterns detected. Proceeding...';
+            }, 1800);
+
+            setTimeout(() => {
+                const amtStr = document.getElementById('payAmount').value;
+                const amt = Number(amtStr);
+                const rec = document.getElementById('payUpiId').value;
+
+                document.getElementById('payStep4').classList.remove('active');
+
+                // USER LOGIC:
+                // Multiples of 5 -> Successful (Priority 1)
+                // Multiples of 3 -> Error Denied (Priority 2)
+                // Multiples of 2 -> Error in Server (Priority 3)
+
+                if (amt % 5 === 0) {
+                    currentBalance -= amt;
+                    if (isBalanceVisible) document.getElementById('balanceText').textContent = '₹' + currentBalance.toLocaleString('en-IN');
+                    document.getElementById('finalAmountText').textContent = '₹' + amt.toLocaleString('en-IN');
+                    document.getElementById('finalRecipientDisplay').textContent = rec;
+                    document.getElementById('payStep5').classList.add('active'); // SUCCESS
+
+                    // RECORD TRANSACTION IN BACKEND
+                    fetch(`${API}/api/pay`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
+                        body: JSON.stringify({ recipient: rec, upi_id: rec, amount: amt })
+                    }).catch(err => console.error('Pay record failed:', err));
+                }
+                else if (amt % 3 === 0) {
+                    document.getElementById('payStep6').classList.add('active'); // DENIED
+                }
+                else if (amt % 2 === 0) {
+                    document.getElementById('payStep7').classList.add('active'); // SERVER ERROR
+                }
+                else {
+                    // Default Success for others to keep usability
+                    currentBalance -= amt;
+                    if (isBalanceVisible) document.getElementById('balanceText').textContent = '₹' + currentBalance.toLocaleString('en-IN');
+                    document.getElementById('finalAmountText').textContent = '₹' + amt.toLocaleString('en-IN');
+                    document.getElementById('finalRecipientDisplay').textContent = rec;
+                    document.getElementById('payStep5').classList.add('active');
+
+                    // RECORD TRANSACTION IN BACKEND
+                    fetch(`${API}/api/pay`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` },
+                        body: JSON.stringify({ recipient: rec, upi_id: rec, amount: amt })
+                    }).catch(err => console.error('Pay record failed:', err));
+                }
+            }, 3000);
+        }
 
         async function loadHistory() {
             if (!userEmail) return;
@@ -964,7 +2007,37 @@
                 });
             } catch { console.warn('Cannot load history'); }
         }
+
+        async function loadTransactions() {
+            const token = sessionStorage.getItem('token');
+            try {
+                const res = await fetch(`${API}/api/transactions`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.status === 401) { logout(); return; }
+                const data = await res.json();
+                const txns = data.transactions || [];
+                const tbody = document.getElementById('transactionsBody');
+                tbody.innerHTML = '';
+                if (!txns.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:rgba(156,163,175,0.5);">No transactions found</td></tr>';
+                    return;
+                }
+                txns.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${t.transaction_date.split(' ')[0]}</td>
+                        <td style="font-weight:700; color:#E9D5FF;">${t.recipient}</td>
+                        <td style="font-family:monospace; font-size:11px; color:rgba(196,181,253,0.6);">${t.upi_id}</td>
+                        <td style="font-weight:800; color:#fff;">₹${Number(t.amount).toLocaleString('en-IN')}</td>
+                        <td><span class="badge badge-resolved">Success</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch { console.warn('Cannot load transactions'); }
+        }
         loadHistory();
+        loadTransactions();
 
         document.getElementById('complaintForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -1055,97 +2128,114 @@
         document.getElementById('detailModal').addEventListener('click', function (e) {
             if (e.target === this) this.style.display = 'none';
         });
+
+        // ── AI Assistant Chatbot Logic ──
+        const chatWindow = document.getElementById('chatWindow');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+
+        function toggleChat() {
+            const isOpen = chatWindow.style.display === 'flex';
+            chatWindow.style.display = isOpen ? 'none' : 'flex';
+            if (!isOpen) {
+                chatInput.focus();
+                if (chatMessages.children.length === 0) {
+                    addChatMessage("AI", "Hi! I'm your UPI Rapid Assistant. How can I help you today?");
+                }
+            }
+        }
+
+        async function handleChatKey(e) {
+            if (e.key === 'Enter') sendChat();
+        }
+
+        function autoSendChat(text) {
+            chatInput.value = text;
+            sendChat();
+        }
+
+        async function sendChat() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+
+            addChatMessage("User", msg);
+            chatInput.value = '';
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const res = await fetch(`${API}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+
+                addChatMessage("AI", data.response, data.transactions);
+            } catch (err) {
+                addChatMessage("AI", "Sorry, I'm having trouble connecting to the brain center.");
+            }
+        }
+
+        function addChatMessage(sender, text, transactions = null) {
+            const div = document.createElement('div');
+            div.className = `msg msg-${sender.toLowerCase()}`;
+            div.innerHTML = text;
+
+            if (transactions && transactions.length > 0) {
+                const list = document.createElement('div');
+                list.className = 'chat-txn-list';
+
+                transactions.forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = 'chat-txn-item';
+
+                    if (t.type === 'year_summary') {
+                        item.style.cursor = 'pointer';
+                        item.onclick = () => autoSendChat(`year ${t.year}`);
+                        item.innerHTML = `
+                            <div>
+                                <div style="font-weight:700; color:#C084FC; font-size:14px;">Year ${t.year}</div>
+                                <div style="font-size:10px; color:rgba(255,255,255,0.4);">${t.count} transactions</div>
+                            </div>
+                            <div style="font-weight:700; color:#fff;">₹${t.total.toLocaleString()}</div>
+                        `;
+                    }
+                    else if (t.type === 'month_summary') {
+                        const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                        const mName = monthNames[parseInt(t.month)];
+                        item.style.cursor = 'pointer';
+                        item.onclick = () => autoSendChat(`month ${mName.toLowerCase()} ${t.year}`);
+
+                        const isZero = t.count === 0;
+                        item.style.opacity = isZero ? '0.6' : '1';
+
+                        item.innerHTML = `
+                            <div>
+                                <div style="font-weight:600; font-size:13px; color:${isZero ? 'rgba(255,255,255,0.5)' : '#fff'};">${mName}</div>
+                                <div style="font-size:10px; color:rgba(255,255,255,0.4);">${isZero ? 'No transactions' : t.count + ' payments'}</div>
+                            </div>
+                            <div style="font-weight:700; color:${isZero ? 'rgba(255,255,255,0.3)' : '#10B981'};">₹${t.total.toLocaleString()}</div>
+                        `;
+                    }
+                    else {
+                        // Standard transaction display
+                        item.innerHTML = `
+                            <div>
+                                <div style="font-weight:600; font-size:12px;">${t.recipient}</div>
+                                <div style="font-size:10px; color:rgba(255,255,255,0.4);">${t.transaction_date.split(' ')[0]}</div>
+                            </div>
+                            <div style="font-weight:700; color:#10B981;">₹${t.amount}</div>
+                        `;
+                    }
+                    list.appendChild(item);
+                });
+                div.appendChild(list);
+            }
+
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     </script>
-    <!-- ── Detail Modal ── -->
-    <div id="detailModal"
-        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-        <div
-            style="background:linear-gradient(135deg, #1a0a3a, #0e0626); border:1px solid rgba(196,181,253,0.2); border-radius:24px; max-width:560px; width:100%; padding:32px; position:relative; animation:fadeSlideUp 0.3s ease both; max-height:90vh; overflow-y:auto;">
-            <!-- Top glow line -->
-            <div
-                style="position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, rgba(168,85,247,0.9), rgba(236,72,153,0.6), transparent); border-radius:24px 24px 0 0;">
-            </div>
-
-            <!-- Close button -->
-            <button onclick="document.getElementById('detailModal').style.display='none'"
-                style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:50%; width:32px; height:32px; color:#C084FC; cursor:pointer; font-size:14px;">✕</button>
-
-            <!-- Header -->
-            <div style="margin-bottom:20px;">
-                <div
-                    style="font-size:11px; color:rgba(196,181,253,0.6); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">
-                    Complaint Analysis</div>
-                <div style="font-size:13px; font-family:monospace; color:#C084FC; font-weight:700;" id="modalTitle">
-                    CMP...</div>
-                <div style="font-size:18px; font-weight:800; color:#F3E8FF; margin-top:4px;" id="modalScenario">Gateway
-                    Timeout</div>
-            </div>
-
-            <!-- Info Grid -->
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
-                <div
-                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
-                    <div
-                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
-                        Amount</div>
-                    <div style="font-weight:800; color:#F3E8FF;" id="modalAmount">₹0</div>
-                </div>
-                <div
-                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
-                    <div
-                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
-                        Filed On</div>
-                    <div style="font-weight:600; color:#E9D5FF; font-size:13px;" id="modalDate">—</div>
-                </div>
-                <div
-                    style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:12px;">
-                    <div
-                        style="font-size:10px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:4px;">
-                        Status</div>
-                    <div style="font-weight:700; font-size:13px;" id="modalStatus">—</div>
-                </div>
-            </div>
-
-            <!-- TXN ID -->
-            <div style="margin-bottom:16px;">
-                <div style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px;">
-                    Transaction ID</div>
-                <div style="font-family:monospace; font-size:13px; color:#A78BFA; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:8px; padding:8px 12px;"
-                    id="modalTxn">—</div>
-            </div>
-
-            <!-- AI Analysis -->
-            <div style="margin-bottom:16px;">
-                <div
-                    style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-                    <span
-                        style="width:18px; height:18px; background:linear-gradient(135deg, #7C3AED, #EC4899); border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">🤖</span>
-                    AI Agent Finding</div>
-                <div style="font-size:13px; color:rgba(229,231,235,0.85); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; line-height:1.7;"
-                    id="modalReasoning">—</div>
-            </div>
-
-            <!-- Why Refund is Warranted -->
-            <div id="modalResolutionBox" style="display:none; margin-bottom:16px;">
-                <div style="font-size:11px; color:rgba(196,181,253,0.55); text-transform:uppercase; margin-bottom:6px;">
-                    📋 Regulatory Basis for Refund</div>
-                <div style="font-size:13px; color:rgba(229,231,235,0.85); background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.2); border-radius:12px; padding:14px; line-height:1.7;"
-                    id="modalResolution">—</div>
-            </div>
-
-            <!-- Refund Box (shown only on resolved) -->
-            <div id="modalRefBox"
-                style="display:none; background:linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.06)); border:1px solid rgba(16,185,129,0.35); border-radius:14px; padding:16px;">
-                <div
-                    style="font-size:11px; color:rgba(110,231,183,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
-                    ✅ Refund Reference Number</div>
-                <div style="font-family:monospace; font-size:16px; font-weight:800; color:#6EE7B7;" id="modalRef">
-                    REF-UPI-...</div>
-                <div style="font-size:12px; color:rgba(110,231,183,0.7); margin-top:8px;">💰 We'll get back to you as
-                    soon as possible as per RBI guidelines.</div>
-            </div>
-        </div>
-    </div>
 
 </body>
 
